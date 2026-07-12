@@ -163,6 +163,9 @@ struct HistoryView: View {
     }
 
     private var legend: some View {
+        // Centered under the chart card — matches the prototype's
+        // justify-content:center legend row (width:100% so centering has
+        // room to work with, since the parent VStack is leading-aligned).
         HStack(spacing: 10) {
             ForEach(["squats", "seatedSquat", "wallPushup", "kneePushup", "floorPushup"], id: \.self) { key in
                 HStack(spacing: 4) {
@@ -171,6 +174,7 @@ struct HistoryView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity)
     }
 
     private func shortName(_ key: String) -> String {
