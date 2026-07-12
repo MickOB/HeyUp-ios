@@ -6,17 +6,54 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		04E751AE3003B439002BA545 /* ExerciseType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751983003A084002BA545 /* ExerciseType.swift */; };
+		04E751AF3003B439002BA545 /* SessionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751993003A084002BA545 /* SessionType.swift */; };
+		04E751B03003B439002BA545 /* DailyStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751973003A084002BA545 /* DailyStats.swift */; };
+		04E751B13003B439002BA545 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E7519A3003A084002BA545 /* UserProfile.swift */; };
+		04E751B23003B4AD002BA545 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E7519D3003A084002BA545 /* NotificationManager.swift */; };
+		04E751B33003B4AD002BA545 /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E7519C3003A084002BA545 /* CameraManager.swift */; };
+		04E751B43003B4AD002BA545 /* StatsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E7519F3003A084002BA545 /* StatsStore.swift */; };
+		04E751B53003B4AD002BA545 /* PoseCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E7519E3003A084002BA545 /* PoseCounter.swift */; };
+		04E751B63003B58A002BA545 /* HeyUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751A13003A084002BA545 /* HeyUpViewModel.swift */; };
+		04E751B73003B598002BA545 /* MovementBreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751A63003A084002BA545 /* MovementBreakView.swift */; };
+		04E751B83003B598002BA545 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751A93003A084002BA545 /* SettingsView.swift */; };
+		04E751B93003B598002BA545 /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751AC3003A084002BA545 /* TimerView.swift */; };
+		04E751BA3003B598002BA545 /* GetReadyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751A43003A084002BA545 /* GetReadyView.swift */; };
+		04E751BB3003B598002BA545 /* CameraPreviewLayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751A33003A084002BA545 /* CameraPreviewLayerView.swift */; };
+		04E751BC3003B598002BA545 /* SkipCheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751AA3003A084002BA545 /* SkipCheckInView.swift */; };
+		04E751BD3003B598002BA545 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751A83003A084002BA545 /* RootView.swift */; };
+		04E751BE3003B598002BA545 /* SuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751AB3003A084002BA545 /* SuccessView.swift */; };
+		04E751BF3003B598002BA545 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751A53003A084002BA545 /* HomeView.swift */; };
+		04E751C03003B598002BA545 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751A73003A084002BA545 /* OnboardingView.swift */; };
+		04E751C23003B95D002BA545 /* HeyUpApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751C13003B95D002BA545 /* HeyUpApp.swift */; };
+		04E751C43003C317002BA545 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E751C33003C317002BA545 /* HistoryView.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		04E7516330038E1D002BA545 /* HeyUp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeyUp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		04E751973003A084002BA545 /* DailyStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyStats.swift; sourceTree = "<group>"; };
+		04E751983003A084002BA545 /* ExerciseType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseType.swift; sourceTree = "<group>"; };
+		04E751993003A084002BA545 /* SessionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionType.swift; sourceTree = "<group>"; };
+		04E7519A3003A084002BA545 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		04E7519C3003A084002BA545 /* CameraManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
+		04E7519D3003A084002BA545 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		04E7519E3003A084002BA545 /* PoseCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseCounter.swift; sourceTree = "<group>"; };
+		04E7519F3003A084002BA545 /* StatsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsStore.swift; sourceTree = "<group>"; };
+		04E751A13003A084002BA545 /* HeyUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeyUpViewModel.swift; sourceTree = "<group>"; };
+		04E751A33003A084002BA545 /* CameraPreviewLayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreviewLayerView.swift; sourceTree = "<group>"; };
+		04E751A43003A084002BA545 /* GetReadyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetReadyView.swift; sourceTree = "<group>"; };
+		04E751A53003A084002BA545 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		04E751A63003A084002BA545 /* MovementBreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovementBreakView.swift; sourceTree = "<group>"; };
+		04E751A73003A084002BA545 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		04E751A83003A084002BA545 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		04E751A93003A084002BA545 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		04E751AA3003A084002BA545 /* SkipCheckInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkipCheckInView.swift; sourceTree = "<group>"; };
+		04E751AB3003A084002BA545 /* SuccessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuccessView.swift; sourceTree = "<group>"; };
+		04E751AC3003A084002BA545 /* TimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
+		04E751C13003B95D002BA545 /* HeyUpApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeyUpApp.swift; sourceTree = "<group>"; };
+		04E751C33003C317002BA545 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		04E7516530038E1D002BA545 /* HeyUp */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = HeyUp;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		04E7516030038E1D002BA545 /* Frameworks */ = {
@@ -32,7 +69,12 @@
 		04E7515A30038E1D002BA545 = {
 			isa = PBXGroup;
 			children = (
-				04E7516530038E1D002BA545 /* HeyUp */,
+				04E751C33003C317002BA545 /* HistoryView.swift */,
+				04E751C13003B95D002BA545 /* HeyUpApp.swift */,
+				04E7519B3003A084002BA545 /* Models 2 */,
+				04E751A03003A084002BA545 /* Services */,
+				04E751A23003A084002BA545 /* ViewModel */,
+				04E751AD3003A084002BA545 /* Views */,
 				04E7516430038E1D002BA545 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +85,53 @@
 				04E7516330038E1D002BA545 /* HeyUp.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		04E7519B3003A084002BA545 /* Models 2 */ = {
+			isa = PBXGroup;
+			children = (
+				04E751973003A084002BA545 /* DailyStats.swift */,
+				04E751983003A084002BA545 /* ExerciseType.swift */,
+				04E751993003A084002BA545 /* SessionType.swift */,
+				04E7519A3003A084002BA545 /* UserProfile.swift */,
+			);
+			path = "Models 2";
+			sourceTree = "<group>";
+		};
+		04E751A03003A084002BA545 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				04E7519C3003A084002BA545 /* CameraManager.swift */,
+				04E7519D3003A084002BA545 /* NotificationManager.swift */,
+				04E7519E3003A084002BA545 /* PoseCounter.swift */,
+				04E7519F3003A084002BA545 /* StatsStore.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		04E751A23003A084002BA545 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				04E751A13003A084002BA545 /* HeyUpViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		04E751AD3003A084002BA545 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				04E751A33003A084002BA545 /* CameraPreviewLayerView.swift */,
+				04E751A43003A084002BA545 /* GetReadyView.swift */,
+				04E751A53003A084002BA545 /* HomeView.swift */,
+				04E751A63003A084002BA545 /* MovementBreakView.swift */,
+				04E751A73003A084002BA545 /* OnboardingView.swift */,
+				04E751A83003A084002BA545 /* RootView.swift */,
+				04E751A93003A084002BA545 /* SettingsView.swift */,
+				04E751AA3003A084002BA545 /* SkipCheckInView.swift */,
+				04E751AB3003A084002BA545 /* SuccessView.swift */,
+				04E751AC3003A084002BA545 /* TimerView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -59,9 +148,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				04E7516530038E1D002BA545 /* HeyUp */,
 			);
 			name = HeyUp;
 			packageProductDependencies = (
@@ -82,6 +168,7 @@
 				TargetAttributes = {
 					04E7516230038E1D002BA545 = {
 						CreatedOnToolsVersion = 26.6;
+						LastSwiftMigration = 2660;
 					};
 				};
 			};
@@ -119,6 +206,27 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04E751AE3003B439002BA545 /* ExerciseType.swift in Sources */,
+				04E751B23003B4AD002BA545 /* NotificationManager.swift in Sources */,
+				04E751B33003B4AD002BA545 /* CameraManager.swift in Sources */,
+				04E751B43003B4AD002BA545 /* StatsStore.swift in Sources */,
+				04E751B73003B598002BA545 /* MovementBreakView.swift in Sources */,
+				04E751B83003B598002BA545 /* SettingsView.swift in Sources */,
+				04E751B93003B598002BA545 /* TimerView.swift in Sources */,
+				04E751C43003C317002BA545 /* HistoryView.swift in Sources */,
+				04E751BA3003B598002BA545 /* GetReadyView.swift in Sources */,
+				04E751BB3003B598002BA545 /* CameraPreviewLayerView.swift in Sources */,
+				04E751C23003B95D002BA545 /* HeyUpApp.swift in Sources */,
+				04E751BC3003B598002BA545 /* SkipCheckInView.swift in Sources */,
+				04E751BD3003B598002BA545 /* RootView.swift in Sources */,
+				04E751BE3003B598002BA545 /* SuccessView.swift in Sources */,
+				04E751BF3003B598002BA545 /* HomeView.swift in Sources */,
+				04E751C03003B598002BA545 /* OnboardingView.swift in Sources */,
+				04E751B53003B4AD002BA545 /* PoseCounter.swift in Sources */,
+				04E751B63003B58A002BA545 /* HeyUpViewModel.swift in Sources */,
+				04E751AF3003B439002BA545 /* SessionType.swift in Sources */,
+				04E751B03003B439002BA545 /* DailyStats.swift in Sources */,
+				04E751B13003B439002BA545 /* UserProfile.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,10 +357,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "HeyUp-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "HeyUp uses your camera during movement breaks to count your reps. Nothing is recorded or leaves your device.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -269,6 +380,7 @@
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -280,10 +392,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "HeyUp-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "HeyUp uses your camera during movement breaks to count your reps. Nothing is recorded or leaves your device.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
