@@ -7,7 +7,7 @@ struct HomeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Hey").font(.system(size: 34, weight: .heavy)) + Text("Up").font(.system(size: 34, weight: .heavy)).foregroundColor(HeyUpColor.accent)
+                    HeyUpWordmark(size: 40)
                     Text(vm.profile.name.isEmpty
                          ? "Earn your screen time, one break at a time."
                          : "Ready when you are, \(vm.profile.name).")
@@ -142,5 +142,35 @@ struct SecondaryPillStyle: ButtonStyle {
             .padding(.horizontal, 14).frame(height: 36)
             .background(HeyUpColor.card).cornerRadius(18)
             .overlay(RoundedRectangle(cornerRadius: 18).stroke(HeyUpColor.border))
+    }
+}
+
+/// The "Hey" + "Up" wordmark with the small upward caret over the "U" —
+/// matches the app icon and the HTML prototype's branding exactly.
+struct HeyUpWordmark: View {
+    var size: CGFloat = 34
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Text("Hey").font(.system(size: size, weight: .heavy)).foregroundColor(HeyUpColor.textPrimary)
+            ZStack(alignment: .top) {
+                Text("Up").font(.system(size: size, weight: .heavy)).foregroundColor(HeyUpColor.accent)
+                Caret()
+                    .stroke(HeyUpColor.accent, style: StrokeStyle(lineWidth: size * 0.16, lineCap: .round, lineJoin: .round))
+                    .frame(width: size * 0.46, height: size * 0.28)
+                    .offset(x: -size * 0.4, y: -size * 0.42)
+            }
+        }
+    }
+}
+
+/// Simple upward chevron (⌃) shape used above the wordmark's "U".
+private struct Caret: Shape {
+    func path(in rect: CGRect) -> Path {
+        var p = Path()
+        p.move(to: CGPoint(x: rect.minX, y: rect.maxY))
+        p.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        return p
     }
 }

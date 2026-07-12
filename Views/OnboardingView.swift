@@ -50,7 +50,7 @@ struct OnboardingView: View {
 
     private var welcomeStep: some View {
         VStack(spacing: 14) {
-            Text("Hey").font(.system(size: 34, weight: .heavy)) + Text("Up").font(.system(size: 34, weight: .heavy)).foregroundColor(HeyUpColor.accent)
+            HeyUpWordmark(size: 44)
             Text("Short movement breaks between the TV time and work you already do.")
                 .font(.system(size: 15))
                 .foregroundColor(HeyUpColor.textMuted)
