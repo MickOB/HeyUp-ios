@@ -5,6 +5,7 @@ import AVFoundation
 enum AppScreen {
     case onboarding
     case home
+    case history
     case timer
     case getReady
     case movementBreak
@@ -53,6 +54,7 @@ final class HeyUpViewModel: ObservableObject {
     @Published var secondsLeft: Int = 0
     @Published var totalSeconds: Int = 0
     @Published var isPaused = false
+    @Published var showOneMinuteWarning = false
 
     // MARK: - Break state
     @Published var reps: Int = 0
@@ -261,9 +263,18 @@ final class HeyUpViewModel: ObservableObject {
             secondsLeft = 0
             timerCancellable?.cancel()
             sessionEndDate = nil // countdown is done — nothing left to restore on relaunch
+            showOneMinuteWarning = false
             startGetReady()
         } else {
             secondsLeft = remaining
+            // Show an in-app banner mirroring the 1-minute-warning notification,
+            // for whenever HeyUp is already in the foreground to see it.
+            if remaining == 60 && totalSeconds > 60 {
+                showOneMinuteWarning = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 6) { [weak self] in
+                    self?.showOneMinuteWarning = false
+                }
+            }
         }
     }
 
@@ -450,4 +461,76 @@ final class HeyUpViewModel: ObservableObject {
 
     func openSettings() { screen = .settings }
     func closeSettings() { screen = .home }
+    func openHistory() { screen = .history }
+    func closeHistory() { screen = .home }
+
+    // MARK: - History rollups (week / month / year)
+
+    /// Groups the last 7 days, 5 weeks, or 12 months into bars for the
+    /// History screen — same shape regardless of range, so the view can
+    /// render all three identically.
+    struct HistoryBucket {
+        let label: String
+        let totalReps: Int
+        let repsByExercise: [String: Int]
+        let isCurrent: Bool
+    }
+
+    func historyBuckets(range: HistoryRange) -> [HistoryBucket] {
+        let cal = Calendar.current
+        let today = Date()
+        switch range {
+        case .week:
+            return (0..<7).reversed().map { offset in
+                let date = cal.date(byAdding: .day, value: -offset, to: today)!
+                let stats = statsStore.stats(for: date)
+                let f = DateFormatter(); f.dateFormat = "EEE"
+                return HistoryBucket(label: f.string(from: date), totalReps: stats.totalReps, repsByExercise: stats.repsByExercise, isCurrent: offset == 0)
+            }
+        case .month:
+            return (0..<5).reversed().map { weekOffset in
+                var totalReps = 0
+                var byEx: [String: Int] = [:]
+                var weekStart: Date = today
+                for dayOffset in 0..<7 {
+                    let date = cal.date(byAdding: .day, value: -(weekOffset * 7 + dayOffset), to: today)!
+                    if dayOffset == 6 { weekStart = date }
+                    let stats = statsStore.stats(for: date)
+                    totalReps += stats.totalReps
+                    for (k, v) in stats.repsByExercise { byEx[k, default: 0] += v }
+                }
+                let f = DateFormatter(); f.dateFormat = "MMM d"
+                return HistoryBucket(label: f.string(from: weekStart), totalReps: totalReps, repsByExercise: byEx, isCurrent: weekOffset == 0)
+            }
+        case .year:
+            return (0..<12).reversed().map { monthOffset in
+                let monthDate = cal.date(byAdding: .month, value: -monthOffset, to: today)!
+                let range = cal.range(of: .day, in: .month, for: monthDate) ?? (1..<1)
+                var totalReps = 0
+                var byEx: [String: Int] = [:]
+                for day in range {
+                    var comps = cal.dateComponents([.year, .month], from: monthDate)
+                    comps.day = day
+                    guard let date = cal.date(from: comps), date <= today else { continue }
+                    let stats = statsStore.stats(for: date)
+                    totalReps += stats.totalReps
+                    for (k, v) in stats.repsByExercise { byEx[k, default: 0] += v }
+                }
+                let f = DateFormatter(); f.dateFormat = "MMM"
+                return HistoryBucket(label: f.string(from: monthDate), totalReps: totalReps, repsByExercise: byEx, isCurrent: monthOffset == 0)
+            }
+        }
+    }
+}
+
+enum HistoryRange: String, CaseIterable, Identifiable {
+    case week, month, year
+    var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .week: return "Week"
+        case .month: return "Month"
+        case .year: return "Year"
+        }
+    }
 }

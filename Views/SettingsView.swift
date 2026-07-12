@@ -12,6 +12,52 @@ struct SettingsView: View {
                     Text("Settings").font(.system(size: 22, weight: .heavy))
                 }
 
+                group("I'M SETTLING IN FOR") {
+                    HStack(spacing: 4) {
+                        ForEach(SessionType.allCases) { t in
+                            Button(t.label) { vm.sessionType = t }
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(t == vm.sessionType ? .black : HeyUpColor.textMuted)
+                                .frame(maxWidth: .infinity, minHeight: 38)
+                                .background(t == vm.sessionType ? HeyUpColor.accent : Color.clear)
+                                .cornerRadius(11)
+                        }
+                    }
+                    .padding(4)
+                    .background(HeyUpColor.card).cornerRadius(14)
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(HeyUpColor.border))
+                }
+
+                group("REMIND ME EVERY") {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
+                        ForEach([20, 30, 45, 60, 90, 120], id: \.self) { m in
+                            Button("\(m) min") { vm.intervalMinutes = m }
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(vm.intervalMinutes == m ? .black : HeyUpColor.textMuted)
+                                .frame(height: 44).frame(maxWidth: .infinity)
+                                .background(vm.intervalMinutes == m ? HeyUpColor.accent : HeyUpColor.card)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(vm.intervalMinutes == m ? HeyUpColor.accent : HeyUpColor.border))
+                        }
+                    }
+                }
+
+                group("STOP REMINDING AFTER") {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
+                        ForEach([2, 4, 6, 8], id: \.self) { h in
+                            Button("\(h)h") { vm.sessionLengthHours = h }
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(vm.sessionLengthHours == h ? .black : HeyUpColor.textMuted)
+                                .frame(height: 44).frame(maxWidth: .infinity)
+                                .background(vm.sessionLengthHours == h ? HeyUpColor.accent : HeyUpColor.card)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(vm.sessionLengthHours == h ? HeyUpColor.accent : HeyUpColor.border))
+                        }
+                    }
+                    Text("So you're not getting pinged at 2am.")
+                        .font(.system(size: 11.5)).foregroundColor(HeyUpColor.textFaint)
+                }
+
                 group("BREAK EXERCISE") {
                     VStack(spacing: 8) {
                         ForEach(ExerciseType.allCases) { ex in

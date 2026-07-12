@@ -3,20 +3,16 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var vm: HeyUpViewModel
 
-    private let intervals = [20, 30, 45, 60, 90, 120]
-    private let sessionHours = [2, 4, 6, 8]
-
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                HStack {
-                    Text("HeyUp").font(.system(size: 34, weight: .heavy))
-                    Spacer()
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Hey").font(.system(size: 34, weight: .heavy)) + Text("Up").font(.system(size: 34, weight: .heavy)).foregroundColor(HeyUpColor.accent)
+                    Text(vm.profile.name.isEmpty
+                         ? "Earn your screen time, one break at a time."
+                         : "Ready when you are, \(vm.profile.name).")
+                        .font(.system(size: 14)).foregroundColor(HeyUpColor.textMuted)
                 }
-                Text(vm.profile.name.isEmpty
-                     ? "Earn your screen time, one break at a time."
-                     : "Ready when you are, \(vm.profile.name).")
-                    .font(.system(size: 14)).foregroundColor(HeyUpColor.textMuted)
 
                 HStack(spacing: 8) {
                     if vm.statsStore.streak > 0 {
@@ -32,43 +28,46 @@ struct HomeView: View {
                     Button("Settings") { vm.openSettings() }
                         .buttonStyle(SecondaryPillStyle())
                 }
+                .padding(.top, 6)
 
-                sectionLabel("I'M SETTLING IN FOR")
-                segmentedRow(SessionType.allCases.map(\.label), current: vm.sessionType.label) { label in
-                    vm.sessionType = SessionType.allCases.first { $0.label == label } ?? .tv
-                }
-
-                sectionLabel("REMIND ME EVERY")
-                gridRow(intervals.map { "\($0)m" }, current: "\(vm.intervalMinutes)m", columns: 3) { label in
-                    vm.intervalMinutes = Int(label.dropLast()) ?? 30
-                }
-
-                sectionLabel("STOP REMINDING AFTER")
-                gridRow(sessionHours.map { "\($0)h" }, current: "\(vm.sessionLengthHours)h", columns: 4) { label in
-                    vm.sessionLengthHours = Int(label.dropLast()) ?? 4
-                }
-                Text("So you're not getting pinged at 2am.")
-                    .font(.system(size: 11.5)).foregroundColor(HeyUpColor.textFaint)
-
-                sectionLabel("EXERCISE")
+                sectionLabel("YOUR BREAK PLAN")
                 Button {
                     vm.openSettings()
                 } label: {
                     HStack {
-                        Text(summaryText).font(.system(size: 14)).foregroundColor(HeyUpColor.textSecondary)
+                        Text(planSummaryText)
+                            .font(.system(size: 16.5, weight: .semibold)).foregroundColor(HeyUpColor.textPrimary)
+                            .multilineTextAlignment(.leading)
                         Spacer()
-                        Text("Change ›").font(.system(size: 13, weight: .semibold)).foregroundColor(HeyUpColor.accent)
+                        Text("Change ›")
+                            .font(.system(size: 15.5, weight: .heavy)).foregroundColor(.black)
+                            .padding(.horizontal, 18).padding(.vertical, 10)
+                            .background(HeyUpColor.accent).cornerRadius(14)
                     }
-                    .padding(.horizontal, 16).frame(height: 50)
+                    .padding(16)
                     .background(HeyUpColor.card).cornerRadius(14)
                     .overlay(RoundedRectangle(cornerRadius: 14).stroke(HeyUpColor.border))
                 }
 
                 sectionLabel("TODAY")
                 HStack(spacing: 8) {
-                    statTile(value: "\(vm.statsStore.today.completed)", label: "done")
-                    statTile(value: "\(vm.statsStore.today.totalReps)", label: "reps")
-                    statTile(value: "\(vm.statsStore.today.skipped)", label: "skipped")
+                    statTile(value: "\(vm.statsStore.today.completed)", label: "breaks done", color: HeyUpColor.accent)
+                    statTile(value: "\(vm.statsStore.today.totalReps)", label: "total reps", color: HeyUpColor.textPrimary)
+                    statTile(value: "\(vm.statsStore.today.skipped)", label: "skipped", color: HeyUpColor.textMuted)
+                }
+
+                Text("THIS WEEK · REPS PER DAY")
+                    .font(.system(size: 11, weight: .semibold)).foregroundColor(HeyUpColor.textFaint)
+                    .padding(.top, 4)
+                weekChart
+
+                HStack {
+                    Spacer()
+                    Button("See full history") { vm.openHistory() }
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(HeyUpColor.textMuted)
+                        .underline()
+                    Spacer()
                 }
 
                 Button("Start \(vm.intervalMinutes)-min block") { vm.startSessionFromHome() }
@@ -80,54 +79,58 @@ struct HomeView: View {
         }
     }
 
-    private var summaryText: String {
-        "\(vm.exercise.displayName) · \(vm.repGoal) reps · \(vm.sessionType.label)"
+    private var planSummaryText: String {
+        "\(vm.sessionType.label) · every \(vm.intervalMinutes) min · stop after \(vm.sessionLengthHours)h · \(vm.exercise.displayName)"
+    }
+
+    private var weekChart: some View {
+        let week = vm.statsStore.weekHistory()
+        let maxReps = max(1, week.map { $0.stats.totalReps }.max() ?? 1)
+        return VStack(spacing: 8) {
+            HStack(alignment: .bottom, spacing: 6) {
+                ForEach(week.indices, id: \.self) { i in
+                    let entry = week[i]
+                    let isToday = Calendar.current.isDateInToday(entry.date)
+                    VStack(spacing: 5) {
+                        Text(entry.stats.totalReps > 0 ? "\(entry.stats.totalReps)" : "")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(isToday ? HeyUpColor.accent : HeyUpColor.textMuted)
+                            .frame(height: 12)
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(entry.stats.totalReps > 0 ? (isToday ? HeyUpColor.accent : HeyUpColor.textMuted.opacity(0.6)) : HeyUpColor.border)
+                            .frame(height: entry.stats.totalReps > 0 ? 6 + 28 * CGFloat(entry.stats.totalReps) / CGFloat(maxReps) : 4)
+                        Text(dayLetter(entry.date))
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(isToday ? HeyUpColor.accent : HeyUpColor.textFaint)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+        }
+        .padding(.horizontal, 14).padding(.vertical, 12)
+        .background(HeyUpColor.card).cornerRadius(14)
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(HeyUpColor.border))
+    }
+
+    private func dayLetter(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "EEEEE" // single-letter weekday
+        return f.string(from: date)
     }
 
     private func sectionLabel(_ text: String) -> some View {
         Text(text).font(.system(size: 11, weight: .semibold)).foregroundColor(HeyUpColor.textFaint)
     }
 
-    private func statTile(value: String, label: String) -> some View {
+    private func statTile(value: String, label: String, color: Color) -> some View {
         VStack(spacing: 2) {
-            Text(value).font(.system(size: 22, weight: .bold)).foregroundColor(HeyUpColor.textMuted)
+            Text(value).font(.system(size: 22, weight: .bold)).foregroundColor(color)
             Text(label).font(.system(size: 11.5)).foregroundColor(HeyUpColor.textMuted)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
         .background(HeyUpColor.card).cornerRadius(14)
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(HeyUpColor.border))
-    }
-
-    private func segmentedRow(_ options: [String], current: String, onSelect: @escaping (String) -> Void) -> some View {
-        HStack(spacing: 4) {
-            ForEach(options, id: \.self) { opt in
-                Button(opt) { onSelect(opt) }
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(opt == current ? .black : HeyUpColor.textMuted)
-                    .frame(maxWidth: .infinity, minHeight: 38)
-                    .background(opt == current ? HeyUpColor.accent : Color.clear)
-                    .cornerRadius(11)
-            }
-        }
-        .padding(4)
-        .background(HeyUpColor.card).cornerRadius(14)
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(HeyUpColor.border))
-    }
-
-    private func gridRow(_ options: [String], current: String, columns: Int, onSelect: @escaping (String) -> Void) -> some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: columns), spacing: 8) {
-            ForEach(options, id: \.self) { opt in
-                Button(opt) { onSelect(opt) }
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(opt == current ? .black : HeyUpColor.textMuted)
-                    .frame(height: 44)
-                    .frame(maxWidth: .infinity)
-                    .background(opt == current ? HeyUpColor.accent : HeyUpColor.card)
-                    .cornerRadius(12)
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(opt == current ? HeyUpColor.accent : HeyUpColor.border))
-            }
-        }
     }
 }
 

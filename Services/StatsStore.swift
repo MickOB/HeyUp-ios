@@ -109,4 +109,12 @@ final class StatsStore: ObservableObject {
             return (date, stats)
         }
     }
+
+    /// Reads one calendar day's stats without mutating anything — used by
+    /// the History screen to build week/month/year rollups. Returns an
+    /// empty DailyStats for days that were never logged (so month/year
+    /// tabulation just naturally fills in the longer someone uses HeyUp).
+    func stats(for date: Date) -> DailyStats {
+        calendar.isDateInToday(date) ? today : (Self.load(for: date) ?? DailyStats())
+    }
 }

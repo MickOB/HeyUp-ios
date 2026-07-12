@@ -25,6 +25,7 @@ struct RootView: View {
             switch vm.screen {
             case .onboarding: OnboardingView()
             case .home: HomeView()
+            case .history: HistoryView()
             case .timer: TimerView()
             case .getReady: GetReadyView()
             case .movementBreak: MovementBreakView()
