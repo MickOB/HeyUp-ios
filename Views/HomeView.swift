@@ -154,12 +154,13 @@ struct HeyUpWordmark: View {
         HStack(spacing: 0) {
             Text("Hey").font(.system(size: size, weight: .heavy)).foregroundColor(HeyUpColor.textPrimary)
             ZStack(alignment: .top) {
-                Text("Up").font(.system(size: size, weight: .heavy)).foregroundColor(HeyUpColor.accent)
+                Text("U").font(.system(size: size, weight: .heavy)).foregroundColor(HeyUpColor.accent)
                 Caret()
                     .stroke(HeyUpColor.accent, style: StrokeStyle(lineWidth: size * 0.16, lineCap: .round, lineJoin: .round))
                     .frame(width: size * 0.46, height: size * 0.28)
-                    .offset(x: -size * 0.4, y: -size * 0.42)
+                    .offset(y: -size * 0.42)
             }
+            Text("p").font(.system(size: size, weight: .heavy)).foregroundColor(HeyUpColor.accent)
         }
     }
 }
