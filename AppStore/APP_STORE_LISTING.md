@@ -11,6 +11,7 @@
 - **Support URL:** https://heyup-support.mickbrown562.chatgpt.site/#support
 - **Privacy Policy URL:** https://heyup-support.mickbrown562.chatgpt.site/#privacy
 - **Marketing URL:** https://heyup-support.mickbrown562.chatgpt.site
+- **Support email:** mick@heyup.fit
 
 ## Promotional text
 
