@@ -1,0 +1,111 @@
+{
+  "identifier" : "B45868B1-4605-4D17-A642-7EBF69796751",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "99.99",
+      "familyShareable" : false,
+      "internalID" : "8F930338-BA4A-4796-889E-E4C5FF199FD1",
+      "localizations" : [
+        {
+          "description" : "Permanent access to all HeyUp Pro features.",
+          "displayName" : "HeyUp Founders Lifetime",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "fit.heyup.pro.lifetime",
+      "referenceName" : "HeyUp Founders Lifetime",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "",
+    "_developerTeamID" : "",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 0,
+    "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "B1727308-449A-42E1-B9F7-3F1737F900BB",
+      "localizations" : [
+
+      ],
+      "name" : "HeyUp Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "49.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "81262112-BADC-41EE-98CC-9CA31960BE9B",
+          "introductoryOffer" : {
+            "internalID" : "C326BB8E-0FB9-4D8C-98A6-9E9AD3AA3695",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Unlimited HeyUp Pro access, billed annually.",
+              "displayName" : "HeyUp Annual Pro",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "fit.heyup.pro.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "HeyUp Annual Pro",
+          "subscriptionGroupID" : "B1727308-449A-42E1-B9F7-3F1737F900BB",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "8.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "4D865E17-F08D-4E30-9B73-4B38D8D348C9",
+          "introductoryOffer" : {
+            "internalID" : "1F16AB38-CAB6-4905-8AD7-760410D57FA9",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Unlimited HeyUp Pro access, billed monthly.",
+              "displayName" : "HeyUp Monthly Pro",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "fit.heyup.pro.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "HeyUp Monthly Pro",
+          "subscriptionGroupID" : "B1727308-449A-42E1-B9F7-3F1737F900BB",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

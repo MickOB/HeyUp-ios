@@ -25,6 +25,16 @@ struct HomeView: View {
                         .overlay(RoundedRectangle(cornerRadius: 16).stroke(HeyUpColor.border))
                     }
                     Spacer()
+                    Button(planBadgeText) {
+                        if !vm.hasProAccess { vm.openPaywall() }
+                    }
+                    .font(.system(size: 11, weight: .heavy))
+                    .foregroundColor(vm.hasProAccess ? .black : HeyUpColor.accent)
+                    .padding(.horizontal, 10)
+                    .frame(height: 30)
+                    .background(vm.hasProAccess ? HeyUpColor.accent : HeyUpColor.card)
+                    .clipShape(Capsule())
+                    .overlay(Capsule().stroke(HeyUpColor.border))
                     Button("Settings") { vm.openSettings() }
                         .buttonStyle(SecondaryPillStyle())
                 }
@@ -82,6 +92,12 @@ struct HomeView: View {
 
     private var planSummaryText: String {
         "\(vm.sessionType.label) · every \(vm.intervalMinutes) min · stop after \(vm.sessionLengthHours)h · \(vm.exercise.displayName)"
+    }
+
+    private var planBadgeText: String {
+        if vm.hasProAccess { return "PRO" }
+        if !vm.introBreakCompleted { return "FREE INTRO" }
+        return "FREE · \(vm.freeBreaksRemaining) left"
     }
 
     private static let exColors: [ExerciseType: Color] = [

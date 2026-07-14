@@ -41,6 +41,50 @@ struct SettingsView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 22))
                 .overlay(RoundedRectangle(cornerRadius: 22).stroke(HeyUpColor.border))
 
+                group("HEYUP PLAN") {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(vm.hasProAccess ? "Pro is active" : "Free plan")
+                                .font(.system(size: 17, weight: .bold))
+                            if !vm.hasProAccess {
+                                Text(vm.introBreakCompleted
+                                     ? "\(vm.freeBreaksRemaining) of 2 free breaks remaining this week"
+                                     : "Your introductory break is ready")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(HeyUpColor.textMuted)
+                            }
+                        }
+                        Spacer()
+                        if !vm.hasProAccess {
+                            Button("View Pro") { vm.openPaywall(returningTo: .settings) }
+                                .font(.system(size: 13, weight: .heavy))
+                                .foregroundColor(.black)
+                                .padding(.horizontal, 14)
+                                .frame(height: 38)
+                                .background(HeyUpColor.accent)
+                                .clipShape(Capsule())
+                        }
+                    }
+                    .padding(15)
+                    .background(HeyUpColor.card)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(HeyUpColor.border))
+
+                    Button("Restore purchases") {
+                        Task { await vm.purchaseManager.restorePurchases() }
+                    }
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(HeyUpColor.accent)
+
+                    if vm.hasProAccess {
+                        Button("Manage subscription") {
+                            openURL(URL(string: "https://apps.apple.com/account/subscriptions")!)
+                        }
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(HeyUpColor.accent)
+                    }
+                }
+
                 group("I'M SETTLING IN FOR") {
                     HStack(spacing: 4) {
                         ForEach(SessionType.allCases) { t in
@@ -143,6 +187,16 @@ struct SettingsView: View {
                 .frame(maxWidth: .infinity).frame(height: 44)
                 .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color(red: 0.227, green: 0.165, blue: 0.141)))
 
+#if DEBUG
+                group("LOCAL TESTING") {
+                    Button("Reset free-plan allowance") {
+                        vm.resetFreePlanForTesting()
+                    }
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(HeyUpColor.accent)
+                }
+#endif
+
             }
             .padding(20)
         }
@@ -179,7 +233,8 @@ struct SettingsView: View {
     private func exerciseCard(_ ex: ExerciseType) -> some View {
         let selected = vm.exercise == ex
         return Button {
-            vm.exercise = ex
+            vm.selectExercise(ex)
+            guard vm.screen == .settings else { return }
             if ex == .both {
                 vm.comboUpperPicked = false
                 vm.comboLowerPicked = false
@@ -193,6 +248,15 @@ struct SettingsView: View {
                     Text(exerciseDescription(ex)).font(.system(size: 12.5)).foregroundColor(HeyUpColor.textMuted)
                 }
                 Spacer()
+                if (ex == .mix || ex == .both) && !vm.hasProAccess {
+                    Text("PRO")
+                        .font(.system(size: 10, weight: .heavy))
+                        .foregroundColor(.black)
+                        .padding(.horizontal, 8)
+                        .frame(height: 22)
+                        .background(HeyUpColor.accent)
+                        .clipShape(Capsule())
+                }
                 Circle()
                     .strokeBorder(selected ? HeyUpColor.accent : HeyUpColor.border, lineWidth: selected ? 6 : 2)
                     .background(Circle().fill(HeyUpColor.background))

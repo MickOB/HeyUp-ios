@@ -54,7 +54,9 @@ struct GetReadyView: View {
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { t in
             if countdown <= 1 {
                 t.invalidate()
-                vm.beginMovementBreak()
+                Task { @MainActor in
+                    vm.beginMovementBreak()
+                }
             } else {
                 countdown -= 1
             }

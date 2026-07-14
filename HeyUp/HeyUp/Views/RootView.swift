@@ -32,6 +32,7 @@ struct RootView: View {
             case .skipCheckIn: SkipCheckInView()
             case .success: SuccessView()
             case .settings: SettingsView()
+            case .paywall: PaywallView()
             }
         }
         .foregroundColor(HeyUpColor.textPrimary)
@@ -41,6 +42,7 @@ struct RootView: View {
             // (see HeyUpViewModel.refreshTimerIfNeeded for why this is safe).
             if newPhase == .active {
                 vm.refreshTimerIfNeeded()
+                vm.refreshFreeAllowanceIfNeeded()
             }
         }
     }

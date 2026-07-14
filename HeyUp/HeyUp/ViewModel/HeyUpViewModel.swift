@@ -12,6 +12,7 @@ enum AppScreen {
     case skipCheckIn
     case success
     case settings
+    case paywall
 }
 
 enum SettingsSub {
@@ -21,6 +22,7 @@ enum SettingsSub {
 /// Central state machine for the whole app — mirrors the HTML prototype's
 /// single ViewModel. Views read published state and call these methods;
 /// nothing here touches UI directly.
+@MainActor
 final class HeyUpViewModel: ObservableObject {
     // MARK: - Persisted user choices
     //
@@ -125,18 +127,30 @@ final class HeyUpViewModel: ObservableObject {
     private static let pausedKey = "heyup-paused"
     private static let pausedRemainingKey = "heyup-paused-remaining"
     private static let profileKey = "heyup-profile"
+    private static let introBreakCompletedKey = "heyup-intro-break-completed"
+    private static let freeWeekKey = "heyup-free-week"
+    private static let freeBreakCountKey = "heyup-free-break-count"
 
     let statsStore = StatsStore.shared
     let cameraManager = CameraManager()
+    let purchaseManager = PurchaseManager()
+    @Published private(set) var introBreakCompleted = false
+    @Published private(set) var freeBreaksUsed = 0
+    private var paywallReturnScreen: AppScreen = .home
     private var poseCounter: PoseCounter?
     private var timerCancellable: AnyCancellable?
     private var restCancellable: AnyCancellable?
+    private var purchaseChangesCancellable: AnyCancellable?
     private var mixIndex = 0
 
     private let mixRotation: [ExerciseType] = [.squats, .seatedSquat, .wallPushup, .kneePushup, .floorPushup]
 
     init() {
+        purchaseChangesCancellable = purchaseManager.objectWillChange.sink { [weak self] _ in
+            self?.objectWillChange.send()
+        }
         loadPersistedSettings()
+        loadFreeAllowance()
         restorePersistedSession()
     }
 
@@ -216,6 +230,18 @@ final class HeyUpViewModel: ObservableObject {
         }
     }
 
+    var freeBreaksRemaining: Int {
+        max(0, 2 - freeBreaksUsed)
+    }
+
+    var hasProAccess: Bool { purchaseManager.hasProAccess }
+
+    var exerciseRequiresPro: Bool { exercise == .mix || exercise == .both }
+
+    private var canStartMovementBreak: Bool {
+        hasProAccess || (!introBreakCompleted || freeBreaksRemaining > 0)
+    }
+
     // MARK: - Onboarding
 
     func finishOnboarding() {
@@ -239,6 +265,11 @@ final class HeyUpViewModel: ObservableObject {
     /// Call this from the Home screen's Start button — begins a brand new
     /// watch/work session and starts its "stop reminding after N hours" clock.
     func startSessionFromHome() {
+        refreshFreeWeekIfNeeded()
+        guard canStartMovementBreak, !exerciseRequiresPro || hasProAccess else {
+            openPaywall(returningTo: .home)
+            return
+        }
         sessionStartTime = Date()
         sessionEnded = false
         startTimer()
@@ -292,6 +323,10 @@ final class HeyUpViewModel: ObservableObject {
     /// backgrounded is caught immediately rather than sitting stale.
     func refreshTimerIfNeeded() {
         tick()
+    }
+
+    func refreshFreeAllowanceIfNeeded() {
+        refreshFreeWeekIfNeeded()
     }
 
     func togglePause() {
@@ -400,6 +435,7 @@ final class HeyUpViewModel: ObservableObject {
         }
         let totalReps = exercises.reduce(0) { $0 + $1.1 }
         statsStore.logCompletedBreak(reps: totalReps, exercises: exercises)
+        recordFreeUsageAfterCompletedBreak()
         skipStreak = 0
         if exercise == .mix { mixIndex += 1 }
         screen = .success
@@ -416,6 +452,9 @@ final class HeyUpViewModel: ObservableObject {
                 self.sessionStartTime = nil
                 self.sessionEnded = true
                 self.screen = .home
+            } else if !self.canStartMovementBreak || (self.exerciseRequiresPro && !self.hasProAccess) {
+                self.sessionStartTime = nil
+                self.openPaywall(returningTo: .home)
             } else {
                 self.startTimer()
             }
@@ -474,8 +513,83 @@ final class HeyUpViewModel: ObservableObject {
     func closeSettings() { screen = .home }
     func openSubExercise() { settingsSub = .exercise }
     func closeSub() { settingsSub = nil }
-    func openHistory() { screen = .history }
+    func openHistory() {
+        if hasProAccess {
+            screen = .history
+        } else {
+            openPaywall(returningTo: .home)
+        }
+    }
     func closeHistory() { screen = .home }
+
+    func selectExercise(_ exercise: ExerciseType) {
+        if (exercise == .mix || exercise == .both) && !hasProAccess {
+            openPaywall(returningTo: .settings)
+            return
+        }
+        self.exercise = exercise
+    }
+
+    func openPaywall(returningTo screen: AppScreen = .home) {
+        paywallReturnScreen = screen
+        self.screen = .paywall
+    }
+
+    func closePaywall() {
+        screen = paywallReturnScreen
+    }
+
+    func purchaseCompleted() {
+        screen = paywallReturnScreen
+    }
+
+    private func loadFreeAllowance() {
+        let defaults = UserDefaults.standard
+        introBreakCompleted = defaults.bool(forKey: Self.introBreakCompletedKey)
+        freeBreaksUsed = defaults.integer(forKey: Self.freeBreakCountKey)
+        refreshFreeWeekIfNeeded()
+    }
+
+    private func recordFreeUsageAfterCompletedBreak() {
+        guard !hasProAccess else { return }
+        let defaults = UserDefaults.standard
+        if !introBreakCompleted {
+            introBreakCompleted = true
+            defaults.set(true, forKey: Self.introBreakCompletedKey)
+        } else {
+            refreshFreeWeekIfNeeded()
+            freeBreaksUsed = min(2, freeBreaksUsed + 1)
+            defaults.set(freeBreaksUsed, forKey: Self.freeBreakCountKey)
+        }
+    }
+
+    private func refreshFreeWeekIfNeeded() {
+        let defaults = UserDefaults.standard
+        let currentWeek = freeWeekIdentifier()
+        guard defaults.string(forKey: Self.freeWeekKey) != currentWeek else { return }
+        defaults.set(currentWeek, forKey: Self.freeWeekKey)
+        defaults.set(0, forKey: Self.freeBreakCountKey)
+        freeBreaksUsed = 0
+    }
+
+    private func freeWeekIdentifier(for date: Date = Date()) -> String {
+        var calendar = Calendar(identifier: .iso8601)
+        calendar.timeZone = .current
+        let parts = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)
+        return "\(parts.yearForWeekOfYear ?? 0)-W\(parts.weekOfYear ?? 0)"
+    }
+
+#if DEBUG
+    func resetFreePlanForTesting() {
+        let defaults = UserDefaults.standard
+        defaults.set(false, forKey: Self.introBreakCompletedKey)
+        defaults.set(0, forKey: Self.freeBreakCountKey)
+        defaults.set(freeWeekIdentifier(), forKey: Self.freeWeekKey)
+        introBreakCompleted = false
+        freeBreaksUsed = 0
+        screen = .home
+    }
+#endif
 
     // MARK: - History rollups (week / month / year)
 
