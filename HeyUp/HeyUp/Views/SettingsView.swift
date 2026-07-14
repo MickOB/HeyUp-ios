@@ -48,7 +48,7 @@ struct SettingsView: View {
                                 .font(.system(size: 17, weight: .bold))
                             if !vm.hasProAccess {
                                 Text(vm.introBreakCompleted
-                                     ? "\(vm.freeBreaksRemaining) of 2 free breaks remaining this week"
+                                     ? "\(vm.freeBreaksRemaining) of \(vm.freeBreakLimit) free breaks remaining this week"
                                      : "Your introductory break is ready")
                                     .font(.system(size: 13))
                                     .foregroundColor(HeyUpColor.textMuted)

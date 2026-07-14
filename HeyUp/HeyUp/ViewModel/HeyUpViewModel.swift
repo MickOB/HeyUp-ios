@@ -130,6 +130,7 @@ final class HeyUpViewModel: ObservableObject {
     private static let introBreakCompletedKey = "heyup-intro-break-completed"
     private static let freeWeekKey = "heyup-free-week"
     private static let freeBreakCountKey = "heyup-free-break-count"
+    private static let weeklyFreeBreakLimit = 3
 
     let statsStore = StatsStore.shared
     let cameraManager = CameraManager()
@@ -231,8 +232,10 @@ final class HeyUpViewModel: ObservableObject {
     }
 
     var freeBreaksRemaining: Int {
-        max(0, 2 - freeBreaksUsed)
+        max(0, Self.weeklyFreeBreakLimit - freeBreaksUsed)
     }
+
+    var freeBreakLimit: Int { Self.weeklyFreeBreakLimit }
 
     var hasProAccess: Bool { purchaseManager.hasProAccess }
 
@@ -558,7 +561,7 @@ final class HeyUpViewModel: ObservableObject {
             defaults.set(true, forKey: Self.introBreakCompletedKey)
         } else {
             refreshFreeWeekIfNeeded()
-            freeBreaksUsed = min(2, freeBreaksUsed + 1)
+            freeBreaksUsed = min(Self.weeklyFreeBreakLimit, freeBreaksUsed + 1)
             defaults.set(freeBreaksUsed, forKey: Self.freeBreakCountKey)
         }
     }
