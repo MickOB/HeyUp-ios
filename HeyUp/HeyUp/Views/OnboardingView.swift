@@ -7,6 +7,7 @@ import UIKit
 struct OnboardingView: View {
     @EnvironmentObject var vm: HeyUpViewModel
     @State private var step = 1
+    @FocusState private var isNameFieldFocused: Bool
     private let totalSteps = 8
 
     var body: some View {
@@ -14,14 +15,16 @@ struct OnboardingView: View {
             // Steps 2 (About you) and 5 (Where did you hear) have enough
             // content that centering them left a large empty gap up top —
             // pin them to the top instead, matching the prototype.
-            if step == 2 || step == 5 {
-                Group {
-                    switch step {
-                    case 2: aboutYouStep
-                    default: sourceStep
-                    }
+            if step == 2 {
+                ScrollView {
+                    aboutYouStep
+                        .padding(.top, 20)
+                        .padding(.bottom, 8)
                 }
-                .padding(.top, 20)
+                .scrollDismissesKeyboard(.interactively)
+            } else if step == 5 {
+                sourceStep
+                    .padding(.top, 20)
                 Spacer()
             } else {
                 Spacer()
@@ -46,6 +49,7 @@ struct OnboardingView: View {
                     }
                 }
                 Button(step == totalSteps ? "Get started" : "Continue") {
+                    isNameFieldFocused = false
                     if step == totalSteps {
                         vm.finishOnboarding()
                     } else {
@@ -61,6 +65,14 @@ struct OnboardingView: View {
         }
         .padding(.horizontal, 28)
         .padding(.top, 20)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    isNameFieldFocused = false
+                }
+            }
+        }
     }
 
     private var welcomeStep: some View {
@@ -96,6 +108,11 @@ struct OnboardingView: View {
             VStack(alignment: .leading, spacing: 10) {
                 fieldLabel("What should we call you?")
                 TextField("First name (optional)", text: $vm.profile.name)
+                    .focused($isNameFieldFocused)
+                    .submitLabel(.done)
+                    .onSubmit {
+                        isNameFieldFocused = false
+                    }
                     .padding(.horizontal, 16)
                     .frame(height: 48)
                     .background(HeyUpColor.card)
