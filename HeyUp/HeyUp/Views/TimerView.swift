@@ -71,7 +71,11 @@ struct TimerView: View {
 
     private var oneMinuteBanner: some View {
         HStack(alignment: .top, spacing: 10) {
-            Text("Hey").font(.system(size: 15, weight: .heavy)) + Text("Up").font(.system(size: 15, weight: .heavy)).foregroundColor(HeyUpColor.accent)
+            HStack(spacing: 0) {
+                Text("Hey")
+                Text("Up").foregroundColor(HeyUpColor.accent)
+            }
+            .font(.system(size: 15, weight: .heavy))
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
                     Text("HeyUp").font(.system(size: 13.5, weight: .bold))

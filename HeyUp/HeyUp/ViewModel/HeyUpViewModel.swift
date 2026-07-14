@@ -344,7 +344,8 @@ final class HeyUpViewModel: ObservableObject {
                 return
             }
             self.attachPoseCounter()
-            self.cameraManager.startSession(counter: self.poseCounter!)
+            guard let poseCounter = self.poseCounter else { return }
+            self.cameraManager.startSession(counter: poseCounter)
         }
     }
 
@@ -381,7 +382,8 @@ final class HeyUpViewModel: ObservableObject {
                 self.breakPhase = 2
                 self.reps = 0
                 self.attachPoseCounter()
-                self.cameraManager.startSession(counter: self.poseCounter!)
+                guard let poseCounter = self.poseCounter else { return }
+                self.cameraManager.startSession(counter: poseCounter)
             } else {
                 self.restSecondsLeft -= 1
             }

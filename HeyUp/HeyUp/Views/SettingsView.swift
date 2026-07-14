@@ -123,6 +123,21 @@ struct SettingsView: View {
                 .foregroundColor(HeyUpColor.warn)
                 .frame(maxWidth: .infinity).frame(height: 44)
                 .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color(red: 0.227, green: 0.165, blue: 0.141)))
+
+                group("HELP & LEGAL") {
+                    HStack(spacing: 8) {
+                        Link("Support", destination: URL(string: "https://heyup-support.mickbrown562.chatgpt.site/#support")!)
+                            .frame(maxWidth: .infinity)
+                        Link("Privacy", destination: URL(string: "https://heyup-support.mickbrown562.chatgpt.site/#privacy")!)
+                            .frame(maxWidth: .infinity)
+                    }
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(HeyUpColor.accent)
+                    .frame(height: 44)
+                    .background(HeyUpColor.card)
+                    .clipShape(RoundedRectangle(cornerRadius: 22))
+                    .overlay(RoundedRectangle(cornerRadius: 22).stroke(HeyUpColor.border))
+                }
             }
             .padding(20)
         }

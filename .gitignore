@@ -7,3 +7,6 @@ xcuserdata/
 # Local Xcode build output
 DerivedData/
 build/
+
+# Separately hosted support and privacy site
+HeyUpSupportSite/
