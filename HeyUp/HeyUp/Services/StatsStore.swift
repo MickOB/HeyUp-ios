@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 /// Persists today's + past days' stats and the streak, all via UserDefaults —
 /// no accounts, no cloud, per MVP scope. Each day gets its own key so a
@@ -99,13 +100,26 @@ final class StatsStore: ObservableObject {
         defaults.set(streak, forKey: Self.streakKey)
     }
 
-    /// Last 7 days (oldest first, today last) for a week-at-a-glance view.
+    /// Current calendar week, Monday through Sunday, so the strip always
+    /// starts on Monday regardless of what day it is today (a rolling
+    /// "last 7 days" window was landing on odd starting weekdays).
     func weekHistory() -> [(date: Date, stats: DailyStats)] {
         rolloverIfNewDay()
-        return (0..<7).reversed().map { offset in
-            let date = calendar.date(byAdding: .day, value: -offset, to: Date())!
+        var mondayFirst = calendar
+        mondayFirst.firstWeekday = 2 // Monday
+        let weekStart = mondayFirst.dateInterval(of: .weekOfYear, for: Date())?.start ?? Date()
+        return (0..<7).map { offset in
+            let date = calendar.date(byAdding: .day, value: offset, to: weekStart)!
             let stats = calendar.isDateInToday(date) ? today : (Self.load(for: date) ?? DailyStats())
             return (date, stats)
         }
+    }
+
+    /// Reads one calendar day's stats without mutating anything — used by
+    /// the History screen to build week/month/year rollups. Returns an
+    /// empty DailyStats for days that were never logged (so month/year
+    /// tabulation just naturally fills in the longer someone uses HeyUp).
+    func stats(for date: Date) -> DailyStats {
+        calendar.isDateInToday(date) ? today : (Self.load(for: date) ?? DailyStats())
     }
 }

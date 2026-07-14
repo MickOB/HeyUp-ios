@@ -1,10 +1,12 @@
 import SwiftUI
 
-/// Week / Month / Year rollup of past activity — an ongoing tabulation that
-/// naturally builds up over time as StatsStore accumulates dated entries.
+/// Week (last 8 weeks) / Month (last 12 months) rollup of past activity —
+/// an ongoing tabulation that naturally builds up over time as StatsStore
+/// accumulates dated entries.
 struct HistoryView: View {
     @EnvironmentObject var vm: HeyUpViewModel
     @State private var range: HistoryRange = .week
+    @State private var selectedBucket: Int? = nil
 
     private static let exerciseColors: [String: Color] = [
         "squats": HeyUpColor.accent,
@@ -16,19 +18,19 @@ struct HistoryView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 34) {
                 HStack {
                     Button("‹ Back") { vm.closeHistory() }
                         .buttonStyle(SecondaryPillStyle())
-                    Text("History").font(.system(size: 22, weight: .heavy))
+                    Text("History").font(.system(size: 28, weight: .heavy))
                 }
 
                 HStack(spacing: 4) {
                     ForEach(HistoryRange.allCases) { r in
-                        Button(r.label) { range = r }
-                            .font(.system(size: 14, weight: .semibold))
+                        Button(r.label) { range = r; selectedBucket = nil }
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(r == range ? .black : HeyUpColor.textMuted)
-                            .frame(maxWidth: .infinity, minHeight: 38)
+                            .frame(maxWidth: .infinity, minHeight: 44)
                             .background(r == range ? HeyUpColor.accent : Color.clear)
                             .cornerRadius(11)
                     }
@@ -41,6 +43,11 @@ struct HistoryView: View {
 
                 group(barsHeading) {
                     barsChart(buckets)
+                    Text(bucketDetailText(buckets))
+                        .font(.system(size: 15))
+                        .foregroundColor(HeyUpColor.textSecondary)
+                        .frame(maxWidth: .infinity, minHeight: 20, alignment: .center)
+                        .multilineTextAlignment(.center)
                     legend
                 }
 
@@ -50,10 +57,10 @@ struct HistoryView: View {
                             HStack {
                                 HStack(spacing: 10) {
                                     Circle().fill(Self.exerciseColors[entry.key] ?? HeyUpColor.textMuted).frame(width: 10, height: 10)
-                                    Text(displayName(entry.key)).font(.system(size: 14)).foregroundColor(HeyUpColor.textSecondary)
+                                    Text(displayName(entry.key)).font(.system(size: 16)).foregroundColor(HeyUpColor.textSecondary)
                                 }
                                 Spacer()
-                                Text("\(entry.value) reps").font(.system(size: 14, weight: .bold)).foregroundColor(HeyUpColor.textPrimary)
+                                Text("\(entry.value) reps").font(.system(size: 16, weight: .bold)).foregroundColor(HeyUpColor.textPrimary)
                             }
                             .padding(.horizontal, 16).frame(height: 46)
                             .background(HeyUpColor.card).cornerRadius(14)
@@ -64,7 +71,7 @@ struct HistoryView: View {
 
                 group(summaryHeading) {
                     HStack(spacing: 8) {
-                        statTile(value: "\(buckets.reduce(0) { $0 + ($1.totalReps > 0 ? 1 : 0) })", label: range == .week ? "active days" : "active \(range == .month ? "weeks" : "months")", color: HeyUpColor.textMuted)
+                        statTile(value: "\(buckets.reduce(0) { $0 + ($1.totalReps > 0 ? 1 : 0) })", label: range == .week ? "active weeks" : "active months", color: HeyUpColor.textMuted)
                         statTile(value: "\(buckets.reduce(0) { $0 + $1.totalReps })", label: "total reps", color: HeyUpColor.textPrimary)
                         statTile(value: bestLabel(buckets), label: bestCaption, color: HeyUpColor.textMuted)
                     }
@@ -76,30 +83,26 @@ struct HistoryView: View {
 
     private var barsHeading: String {
         switch range {
-        case .week: return "LAST 7 DAYS · BY EXERCISE"
-        case .month: return "LAST 5 WEEKS · BY EXERCISE"
-        case .year: return "LAST 12 MONTHS · BY EXERCISE"
+        case .week: return "LAST 8 WEEKS · BY EXERCISE"
+        case .month: return "LAST 12 MONTHS · BY EXERCISE"
         }
     }
     private var totalsHeading: String {
         switch range {
-        case .week: return "TOTALS THIS WEEK"
-        case .month: return "TOTALS THIS MONTH"
-        case .year: return "TOTALS THIS YEAR"
+        case .week: return "TOTALS · LAST 8 WEEKS"
+        case .month: return "TOTALS · LAST 12 MONTHS"
         }
     }
     private var summaryHeading: String {
         switch range {
-        case .week: return "SEVEN-DAY SUMMARY"
-        case .month: return "MONTHLY SUMMARY"
-        case .year: return "YEARLY SUMMARY"
+        case .week: return "WEEK SUMMARY"
+        case .month: return "MONTH SUMMARY"
         }
     }
     private var bestCaption: String {
         switch range {
-        case .week: return "best day"
-        case .month: return "best week"
-        case .year: return "best month"
+        case .week: return "best week"
+        case .month: return "best month"
         }
     }
 
@@ -118,24 +121,44 @@ struct HistoryView: View {
         ExerciseType(rawValue: key)?.displayName ?? key
     }
 
+    private func bucketDetailText(_ buckets: [HeyUpViewModel.HistoryBucket]) -> String {
+        guard !buckets.isEmpty else { return "" }
+        let idx = (selectedBucket != nil && selectedBucket! < buckets.count) ? selectedBucket! : buckets.count - 1
+        let b = buckets[idx]
+        guard b.totalReps > 0 else { return "\(b.label) · no reps yet" }
+        let parts = b.repsByExercise.filter { $0.value > 0 }
+            .sorted { $0.value > $1.value }
+            .map { "\($0.value) \(displayName($0.key))" }
+        return "\(b.label) · " + parts.joined(separator: ", ")
+    }
+
     private func barsChart(_ buckets: [HeyUpViewModel.HistoryBucket]) -> some View {
         let maxReps = max(1, buckets.map(\.totalReps).max() ?? 1)
+        let selIdx = (selectedBucket != nil && selectedBucket! < buckets.count) ? selectedBucket! : buckets.count - 1
         return HStack(alignment: .bottom, spacing: 6) {
             ForEach(buckets.indices, id: \.self) { i in
                 let b = buckets[i]
-                VStack(spacing: 5) {
-                    Text(b.totalReps > 0 ? "\(b.totalReps)" : "")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundColor(b.isCurrent ? HeyUpColor.accent : HeyUpColor.textMuted)
-                        .frame(height: 12)
-                    stackedBar(b, maxReps: maxReps)
-                    Text(b.label)
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(b.isCurrent ? HeyUpColor.accent : HeyUpColor.textFaint)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
+                let isSel = i == selIdx
+                Button {
+                    selectedBucket = i
+                } label: {
+                    VStack(spacing: 5) {
+                        Text(b.totalReps > 0 ? "\(b.totalReps)" : "")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(isSel ? HeyUpColor.accent : HeyUpColor.textMuted)
+                            .frame(height: 14)
+                        stackedBar(b, maxReps: maxReps)
+                        Text(b.label)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(isSel ? HeyUpColor.accent : HeyUpColor.textFaint)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .background(isSel ? HeyUpColor.accent.opacity(0.08) : Color.clear)
+                    .cornerRadius(8)
                 }
-                .frame(maxWidth: .infinity)
+                .buttonStyle(.plain)
             }
         }
         .frame(height: 90, alignment: .bottom)
@@ -170,7 +193,7 @@ struct HistoryView: View {
             ForEach(["squats", "seatedSquat", "wallPushup", "kneePushup", "floorPushup"], id: \.self) { key in
                 HStack(spacing: 4) {
                     RoundedRectangle(cornerRadius: 2).fill(Self.exerciseColors[key] ?? HeyUpColor.textMuted).frame(width: 8, height: 8)
-                    Text(shortName(key)).font(.system(size: 10.5)).foregroundColor(HeyUpColor.textMuted)
+                    Text(shortName(key)).font(.system(size: 12.5)).foregroundColor(HeyUpColor.textMuted)
                 }
             }
         }
@@ -190,7 +213,7 @@ struct HistoryView: View {
 
     private func group<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(title).font(.system(size: 11, weight: .semibold)).foregroundColor(HeyUpColor.textFaint)
+            Text(title).font(.system(size: 13, weight: .semibold)).foregroundColor(HeyUpColor.textFaint)
             content()
         }
     }

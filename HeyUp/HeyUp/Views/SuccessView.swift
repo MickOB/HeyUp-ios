@@ -3,7 +3,10 @@ import SwiftUI
 struct SuccessView: View {
     @EnvironmentObject var vm: HeyUpViewModel
 
-    private let compliments = ["Strong work", "Your back thanks you", "Better than a coffee", "That's how it's done", "Blood's flowing again"]
+    private var compliments: [String] {
+        let nm = vm.profile.name.isEmpty ? "" : ", \(vm.profile.name)"
+        return ["Way to go\(nm)", "Strong work\(nm)", "Your back thanks you", "Better than a coffee", "That's how it's done\(nm)", "Blood's flowing again"]
+    }
 
     var body: some View {
         VStack(spacing: 16) {

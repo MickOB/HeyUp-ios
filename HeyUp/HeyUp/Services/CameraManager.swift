@@ -1,6 +1,7 @@
 import Foundation
 import AVFoundation
 import UIKit
+import Combine
 
 /// Owns the AVCaptureSession that feeds frames to Vision. Runs the capture
 /// pipeline on a dedicated background queue; publishes each frame's Vision

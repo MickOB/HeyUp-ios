@@ -4,23 +4,33 @@ struct SettingsView: View {
     @EnvironmentObject var vm: HeyUpViewModel
 
     var body: some View {
+        Group {
+            if vm.settingsSub == .exercise {
+                exerciseSubScreen
+            } else {
+                mainSettings
+            }
+        }
+    }
+
+    private var mainSettings: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 26) {
                 HStack {
                     Button("‹ Back") { vm.closeSettings() }
                         .buttonStyle(SecondaryPillStyle())
-                    Text("Settings").font(.system(size: 22, weight: .heavy))
+                    Text("Settings").font(.system(size: 33, weight: .heavy))
                 }
 
                 group("I'M SETTLING IN FOR") {
                     HStack(spacing: 4) {
                         ForEach(SessionType.allCases) { t in
                             Button(t.label) { vm.sessionType = t }
-                                .font(.system(size: 13, weight: .semibold))
+                                .font(.system(size: 12.5, weight: .semibold))
                                 .foregroundColor(t == vm.sessionType ? .black : HeyUpColor.textMuted)
-                                .frame(maxWidth: .infinity, minHeight: 38)
+                                .frame(maxWidth: .infinity, minHeight: 34)
                                 .background(t == vm.sessionType ? HeyUpColor.accent : Color.clear)
-                                .cornerRadius(11)
+                                .cornerRadius(10)
                         }
                     }
                     .padding(4)
@@ -32,12 +42,12 @@ struct SettingsView: View {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
                         ForEach([20, 30, 45, 60, 90, 120], id: \.self) { m in
                             Button("\(m) min") { vm.intervalMinutes = m }
-                                .font(.system(size: 14, weight: .bold))
+                                .font(.system(size: 13, weight: .bold))
                                 .foregroundColor(vm.intervalMinutes == m ? .black : HeyUpColor.textMuted)
-                                .frame(height: 44).frame(maxWidth: .infinity)
+                                .frame(height: 38).frame(maxWidth: .infinity)
                                 .background(vm.intervalMinutes == m ? HeyUpColor.accent : HeyUpColor.card)
-                                .cornerRadius(12)
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(vm.intervalMinutes == m ? HeyUpColor.accent : HeyUpColor.border))
+                                .cornerRadius(11)
+                                .overlay(RoundedRectangle(cornerRadius: 11).stroke(vm.intervalMinutes == m ? HeyUpColor.accent : HeyUpColor.border))
                         }
                     }
                 }
@@ -46,42 +56,57 @@ struct SettingsView: View {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
                         ForEach([2, 4, 6, 8], id: \.self) { h in
                             Button("\(h)h") { vm.sessionLengthHours = h }
-                                .font(.system(size: 14, weight: .bold))
+                                .font(.system(size: 13, weight: .bold))
                                 .foregroundColor(vm.sessionLengthHours == h ? .black : HeyUpColor.textMuted)
-                                .frame(height: 44).frame(maxWidth: .infinity)
+                                .frame(height: 38).frame(maxWidth: .infinity)
                                 .background(vm.sessionLengthHours == h ? HeyUpColor.accent : HeyUpColor.card)
-                                .cornerRadius(12)
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(vm.sessionLengthHours == h ? HeyUpColor.accent : HeyUpColor.border))
+                                .cornerRadius(11)
+                                .overlay(RoundedRectangle(cornerRadius: 11).stroke(vm.sessionLengthHours == h ? HeyUpColor.accent : HeyUpColor.border))
                         }
                     }
-                    Text("So you're not getting pinged at 2am.")
-                        .font(.system(size: 11.5)).foregroundColor(HeyUpColor.textFaint)
                 }
 
-                group("BREAK EXERCISE") {
-                    VStack(spacing: 8) {
-                        ForEach(ExerciseType.allCases) { ex in
-                            exerciseCard(ex)
+                Button {
+                    vm.openSubExercise()
+                } label: {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Break exercise").font(.system(size: 13, weight: .medium)).foregroundColor(HeyUpColor.textMuted)
+                            Text(vm.exercise.displayName).font(.system(size: 18, weight: .semibold)).foregroundColor(HeyUpColor.textPrimary)
                         }
+                        Spacer()
+                        Text("›").font(.system(size: 28, weight: .heavy)).foregroundColor(HeyUpColor.accent)
+                            .frame(width: 54, height: 54)
+                            .background(HeyUpColor.border).clipShape(Circle())
                     }
-                    if vm.exercise == .both {
-                        comboPicker
-                    }
+                    .padding(16).background(HeyUpColor.card).cornerRadius(14)
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(HeyUpColor.border))
                 }
 
                 group("REPS PER BREAK") {
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 5), spacing: 6) {
-                        ForEach([5, 10, 15, 20, 25], id: \.self) { n in
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
+                        ForEach([2, 5, 10, 15, 20, 30, 40, 50], id: \.self) { n in
                             Button("\(n)") { vm.repGoal = n }
-                                .font(.system(size: 15, weight: .bold))
+                                .font(.system(size: 13, weight: .bold))
                                 .foregroundColor(vm.repGoal == n ? .black : HeyUpColor.textSecondary)
-                                .frame(height: 46).frame(maxWidth: .infinity)
+                                .frame(height: 38).frame(maxWidth: .infinity)
                                 .background(vm.repGoal == n ? HeyUpColor.accent : HeyUpColor.card)
-                                .cornerRadius(14)
-                                .overlay(RoundedRectangle(cornerRadius: 14).stroke(vm.repGoal == n ? HeyUpColor.accent : HeyUpColor.border))
+                                .cornerRadius(11)
+                                .overlay(RoundedRectangle(cornerRadius: 11).stroke(vm.repGoal == n ? HeyUpColor.accent : HeyUpColor.border))
                         }
                     }
                 }
+
+                Button("Done") {
+                    vm.closeSettings()
+                }
+                .font(.system(size: 18, weight: .heavy))
+                .foregroundColor(.black)
+                .frame(width: 160).frame(height: 48)
+                .background(HeyUpColor.accent)
+                .cornerRadius(24)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 8)
 
                 Button("Change name or age (redo onboarding)") {
                     vm.screen = .onboarding
@@ -103,9 +128,30 @@ struct SettingsView: View {
         }
     }
 
+    private var exerciseSubScreen: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                HStack {
+                    Button("‹ Back") { vm.closeSub() }
+                        .buttonStyle(SecondaryPillStyle())
+                    Text("Break Exercise").font(.system(size: 22, weight: .heavy))
+                }
+                VStack(spacing: 12) {
+                    ForEach(ExerciseType.allCases) { ex in
+                        exerciseCard(ex)
+                    }
+                }
+                if vm.exercise == .both {
+                    comboPicker
+                }
+            }
+            .padding(20)
+        }
+    }
+
     private func group<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(title).font(.system(size: 11, weight: .semibold)).foregroundColor(HeyUpColor.textFaint)
+            Text(title).font(.system(size: 16.5, weight: .semibold)).foregroundColor(HeyUpColor.textFaint)
             content()
         }
     }
@@ -114,6 +160,12 @@ struct SettingsView: View {
         let selected = vm.exercise == ex
         return Button {
             vm.exercise = ex
+            if ex == .both {
+                vm.comboUpperPicked = false
+                vm.comboLowerPicked = false
+            } else {
+                vm.closeSub()
+            }
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
@@ -135,9 +187,9 @@ struct SettingsView: View {
         switch ex {
         case .squats: return "Stand facing the camera, squat down and up"
         case .seatedSquat: return "Stand up from your seat, no hands — easiest start"
-        case .wallPushup: return "Push-ups against a wall — gentlest on wrists/shoulders"
+        case .wallPushup: return "Hands on the wall, easier on wrists"
         case .kneePushup: return "Push-ups from your knees — a step up from wall"
-        case .floorPushup: return "Full push-ups on the floor"
+        case .floorPushup: return "Classic push-ups, camera to your side"
         case .mix: return "Rotates through all exercises, one per break"
         case .both: return "\(vm.comboUpper.displayName) then \(vm.comboLower.displayName)"
         }
@@ -148,14 +200,22 @@ struct SettingsView: View {
             Text("Push-up style").font(.system(size: 11.5)).foregroundColor(HeyUpColor.textFaint)
             FlowLayout(spacing: 6) {
                 ForEach([ExerciseType.wallPushup, .kneePushup, .floorPushup]) { ex in
-                    Button(ex.displayName) { vm.comboUpper = ex }
+                    Button(ex.displayName) {
+                        vm.comboUpper = ex
+                        vm.comboUpperPicked = true
+                        if vm.comboLowerPicked { vm.closeSub() }
+                    }
                         .buttonStyle(ChipButtonStyle(selected: vm.comboUpper == ex))
                 }
             }
             Text("Squat style").font(.system(size: 11.5)).foregroundColor(HeyUpColor.textFaint).padding(.top, 4)
             FlowLayout(spacing: 6) {
                 ForEach([ExerciseType.squats, .seatedSquat]) { ex in
-                    Button(ex.displayName) { vm.comboLower = ex }
+                    Button(ex.displayName) {
+                        vm.comboLower = ex
+                        vm.comboLowerPicked = true
+                        if vm.comboUpperPicked { vm.closeSub() }
+                    }
                         .buttonStyle(ChipButtonStyle(selected: vm.comboLower == ex))
                 }
             }

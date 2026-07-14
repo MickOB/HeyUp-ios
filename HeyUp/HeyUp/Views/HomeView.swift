@@ -11,7 +11,7 @@ struct HomeView: View {
                     Text(vm.profile.name.isEmpty
                          ? "Earn your screen time, one break at a time."
                          : "Ready when you are, \(vm.profile.name).")
-                        .font(.system(size: 14)).foregroundColor(HeyUpColor.textMuted)
+                        .font(.system(size: 16)).foregroundColor(HeyUpColor.textMuted)
                 }
 
                 HStack(spacing: 8) {
@@ -30,7 +30,7 @@ struct HomeView: View {
                 }
                 .padding(.top, 6)
 
-                sectionLabel("YOUR BREAK PLAN")
+                Text("YOUR BREAK PLAN").font(.system(size: 13, weight: .bold)).foregroundColor(HeyUpColor.textFaint)
                 Button {
                     vm.openSettings()
                 } label: {
@@ -73,6 +73,7 @@ struct HomeView: View {
                 Button("Start \(vm.intervalMinutes)-min block") { vm.startSessionFromHome() }
                     .buttonStyle(PrimaryButtonStyle())
                     .frame(maxWidth: .infinity)
+                    .padding(.top, 40)
                     .padding(.top, 6)
             }
             .padding(20)
@@ -83,6 +84,16 @@ struct HomeView: View {
         "\(vm.sessionType.label) · every \(vm.intervalMinutes) min · stop after \(vm.sessionLengthHours)h · \(vm.exercise.displayName)"
     }
 
+    private static let exColors: [ExerciseType: Color] = [
+        .squats: HeyUpColor.accent,
+        .seatedSquat: Color(red: 0.61, green: 0.75, blue: 0.24),
+        .wallPushup: Color(red: 0.46, green: 0.57, blue: 0.23),
+        .kneePushup: Color(red: 0.34, green: 0.44, blue: 0.18),
+        .floorPushup: Color(red: 0.25, green: 0.31, blue: 0.15)
+    ]
+
+    @State private var selectedDayIndex: Int? = nil
+
     private var weekChart: some View {
         let week = vm.statsStore.weekHistory()
         let maxReps = max(1, week.map { $0.stats.totalReps }.max() ?? 1)
@@ -91,25 +102,81 @@ struct HomeView: View {
                 ForEach(week.indices, id: \.self) { i in
                     let entry = week[i]
                     let isToday = Calendar.current.isDateInToday(entry.date)
-                    VStack(spacing: 5) {
-                        Text(entry.stats.totalReps > 0 ? "\(entry.stats.totalReps)" : "")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(isToday ? HeyUpColor.accent : HeyUpColor.textMuted)
-                            .frame(height: 12)
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(entry.stats.totalReps > 0 ? (isToday ? HeyUpColor.accent : HeyUpColor.textMuted.opacity(0.6)) : HeyUpColor.border)
-                            .frame(height: entry.stats.totalReps > 0 ? 6 + 28 * CGFloat(entry.stats.totalReps) / CGFloat(maxReps) : 4)
-                        Text(dayLetter(entry.date))
-                            .font(.system(size: 10, weight: .semibold))
-                            .foregroundColor(isToday ? HeyUpColor.accent : HeyUpColor.textFaint)
+                    Button {
+                        selectedDayIndex = (selectedDayIndex == i) ? nil : i
+                    } label: {
+                        VStack(spacing: 5) {
+                            Text(entry.stats.totalReps > 0 ? "\(entry.stats.totalReps)" : "")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(isToday ? HeyUpColor.accent : HeyUpColor.textMuted)
+                                .frame(height: 12)
+                            VStack(spacing: 1) {
+                                ForEach(barSegments(entry.stats, maxReps: maxReps), id: \.exercise) { seg in
+                                    RoundedRectangle(cornerRadius: 3)
+                                        .fill(Self.exColors[seg.exercise] ?? HeyUpColor.textMuted)
+                                        .frame(height: seg.height)
+                                }
+                            }
+                            .frame(width: 18)
+                            .frame(height: 150, alignment: .bottom)
+                            .opacity(entry.stats.totalReps > 0 ? 1 : 1)
+                            .background(
+                                entry.stats.totalReps == 0
+                                    ? RoundedRectangle(cornerRadius: 3).fill(HeyUpColor.border).frame(width: 18, height: 4)
+                                    : nil,
+                                alignment: .bottom
+                            )
+                            Text(dayLetter(entry.date))
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundColor(isToday ? HeyUpColor.accent : HeyUpColor.textFaint)
+                        }
+                        .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
+                    .buttonStyle(.plain)
                 }
             }
+            Text(dayDetailText(week: week))
+                .font(.system(size: 12)).foregroundColor(HeyUpColor.textMuted)
+                .multilineTextAlignment(.center)
+                .frame(minHeight: 17)
         }
         .padding(.horizontal, 14).padding(.vertical, 12)
         .background(HeyUpColor.card).cornerRadius(14)
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(HeyUpColor.border))
+    }
+
+    private struct BarSegment { let exercise: ExerciseType; let height: CGFloat }
+
+    /// Splits a day's total bar height proportionally across the exercises
+    /// that contributed reps, so a mixed day reads as a stacked bar —
+    /// same idea as the prototype's stacked week chart.
+    private func barSegments(_ stats: DailyStats, maxReps: Int) -> [BarSegment] {
+        guard stats.totalReps > 0 else { return [] }
+        let totalH = 8 + 130 * CGFloat(stats.totalReps) / CGFloat(maxReps)
+        let contributing = ExerciseType.countable.filter { (stats.repsByExercise[$0.rawValue] ?? 0) > 0 }
+        guard !contributing.isEmpty else {
+            return [BarSegment(exercise: .squats, height: totalH)]
+        }
+        return contributing.map { ex in
+            let share = CGFloat(stats.repsByExercise[ex.rawValue] ?? 0) / CGFloat(stats.totalReps)
+            return BarSegment(exercise: ex, height: max(4, totalH * share))
+        }
+    }
+
+    /// "Wed · 25 reps — 15 squats, 10 wall push-ups" for the selected day,
+    /// or today's mix if none is selected.
+    private func dayDetailText(week: [(date: Date, stats: DailyStats)]) -> String {
+        let i = selectedDayIndex ?? week.indices.last(where: { Calendar.current.isDateInToday(week[$0].date) })
+        guard let i, week.indices.contains(i) else { return "" }
+        let entry = week[i]
+        let f = DateFormatter(); f.dateFormat = "EEE"
+        let label = f.string(from: entry.date)
+        guard entry.stats.totalReps > 0 else { return "\(label) · no reps yet" }
+        let parts = ExerciseType.countable.compactMap { ex -> String? in
+            guard let reps = entry.stats.repsByExercise[ex.rawValue], reps > 0 else { return nil }
+            return "\(reps) \(ex.displayName.lowercased())"
+        }
+        return "\(label) · \(entry.stats.totalReps) reps — \(parts.joined(separator: ", "))"
     }
 
     private func dayLetter(_ date: Date) -> String {
@@ -124,8 +191,8 @@ struct HomeView: View {
 
     private func statTile(value: String, label: String, color: Color) -> some View {
         VStack(spacing: 2) {
-            Text(value).font(.system(size: 22, weight: .bold)).foregroundColor(color)
-            Text(label).font(.system(size: 11.5)).foregroundColor(HeyUpColor.textMuted)
+            Text(value).font(.system(size: 28, weight: .bold)).foregroundColor(color)
+            Text(label).font(.system(size: 13)).foregroundColor(HeyUpColor.textMuted)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
@@ -156,9 +223,9 @@ struct HeyUpWordmark: View {
             ZStack(alignment: .top) {
                 Text("U").font(.system(size: size, weight: .heavy)).foregroundColor(HeyUpColor.accent)
                 Caret()
-                    .stroke(HeyUpColor.accent, style: StrokeStyle(lineWidth: size * 0.16, lineCap: .round, lineJoin: .round))
-                    .frame(width: size * 0.46, height: size * 0.28)
-                    .offset(y: -size * 0.42)
+                    .stroke(HeyUpColor.accent, style: StrokeStyle(lineWidth: size * 0.085, lineCap: .round, lineJoin: .round))
+                    .frame(width: size * 0.29, height: size * 0.175)
+                    .offset(y: -size * 0.2)
             }
             Text("p").font(.system(size: size, weight: .heavy)).foregroundColor(HeyUpColor.accent)
         }

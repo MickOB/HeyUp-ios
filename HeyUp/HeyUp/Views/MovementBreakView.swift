@@ -46,14 +46,17 @@ struct MovementBreakView: View {
                     .ignoresSafeArea(edges: .top)
 
                 VStack {
-                    VStack(spacing: 4) {
-                        Text("MOVEMENT BREAK").font(.system(size: 11, weight: .semibold)).foregroundColor(HeyUpColor.accent)
-                        Text(vm.currentExercise.displayName).font(.system(size: 20, weight: .bold))
+                    VStack(spacing: 6) {
+                        Text("MOVEMENT BREAK").font(.system(size: 15, weight: .heavy)).foregroundColor(HeyUpColor.accent)
+                        Text(vm.currentExercise.displayName).font(.system(size: 28, weight: .heavy)).foregroundColor(.white)
                         if vm.exercise == .both {
                             Text("Phase \(vm.breakPhase) of 2 · \(vm.breakPhase == 1 ? vm.comboUpper.displayName : vm.comboLower.displayName)")
-                                .font(.system(size: 11, weight: .semibold)).foregroundColor(HeyUpColor.textMuted)
+                                .font(.system(size: 15, weight: .bold)).foregroundColor(.white)
                         }
                     }
+                    .padding(.horizontal, 20).padding(.vertical, 10)
+                    .background(Color.black.opacity(0.55))
+                    .cornerRadius(16)
                     .padding(.top, 30)
 
                     if case .tooClose(let joint) = vm.framingStatus {
@@ -87,7 +90,10 @@ struct MovementBreakView: View {
                             }
                         }
                         Text(vm.repFeedback.isEmpty ? "Detecting body pose…" : vm.repFeedback)
-                            .font(.system(size: 12, weight: .semibold)).foregroundColor(HeyUpColor.textMuted)
+                            .font(.system(size: 14, weight: .bold)).foregroundColor(.white)
+                            .padding(.horizontal, 16).padding(.vertical, 8)
+                            .background(Color.black.opacity(0.55))
+                            .cornerRadius(14)
                     }
                     .padding(.bottom, 26)
                 }
@@ -105,10 +111,10 @@ struct MovementBreakView: View {
             .frame(maxHeight: .infinity)
 
             Button("Skip this break") { vm.skipBreak() }
-                .font(.system(size: 14, weight: .semibold))
+                .font(.system(size: 18, weight: .bold))
                 .foregroundColor(HeyUpColor.warn)
-                .padding(.horizontal, 24).frame(height: 42)
-                .overlay(RoundedRectangle(cornerRadius: 21).stroke(Color(red: 0.227, green: 0.165, blue: 0.141)))
+                .padding(.horizontal, 34).frame(height: 56)
+                .overlay(RoundedRectangle(cornerRadius: 28).stroke(Color(red: 0.227, green: 0.165, blue: 0.141)))
                 .padding(.vertical, 20)
         }
     }

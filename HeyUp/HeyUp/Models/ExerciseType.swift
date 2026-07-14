@@ -53,19 +53,22 @@ enum ExerciseType: String, Codable, CaseIterable, Identifiable {
                     "Sit tall near the front of your seat",
                     "Stand fully up, then sit back down — no hands"]
         case .wallPushup:
-            return ["Prop your phone to your side, low enough to see your arms",
-                    "Stand arm's length from a wall, hands at shoulder height",
-                    "Bend your elbows to bring your chest to the wall, then push back"]
+            return ["Prop your phone to your side",
+                    "Hands on the wall at shoulder height, feet back",
+                    "Bend elbows to bring chest to the wall, push back"]
         case .kneePushup:
             return ["Prop your phone low, to your side",
                     "Knees down, hands under your shoulders",
                     "Lower your chest, then press back up"]
         case .floorPushup:
-            return ["Prop your phone low, to your side, whole body in frame",
-                    "Hands under shoulders, body in a straight line",
+            return ["Prop your phone low, to your side",
+                    "Place it far enough back to fit your whole body",
                     "Lower chest to the floor, elbows at 45°"]
-        case .mix, .both:
+        case .mix:
             return ["Prop your phone up so it can see you"]
+        case .both:
+            return ["Prop your phone up so it can see you for both parts",
+                    "We'll tell you when to switch"]
         }
     }
 }

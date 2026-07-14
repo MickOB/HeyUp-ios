@@ -29,21 +29,35 @@ struct TimerView: View {
                     )
                     .padding(.horizontal, 40)
                 Text(vm.sessionType.waitingCopy)
-                    .font(.system(size: 13.5)).foregroundColor(HeyUpColor.textMuted)
+                    .font(.system(size: 17)).foregroundColor(HeyUpColor.textSecondary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 260)
                 Spacer()
-                HStack(spacing: 14) {
+                HStack(spacing: 12) {
                     Button(vm.isPaused ? "Resume" : "Pause") { vm.togglePause() }
-                        .buttonStyle(SecondaryPillStyle())
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(HeyUpColor.accent)
+                        .padding(.horizontal, 22).frame(height: 54)
+                        .background(HeyUpColor.card).cornerRadius(27)
+                        .overlay(RoundedRectangle(cornerRadius: 27).stroke(HeyUpColor.border))
                     Button("Move now") { vm.skipToBreakNow() }
-                        .buttonStyle(SecondaryPillStyle())
-                    Button("Home") { vm.goHome() }
-                        .buttonStyle(SecondaryPillStyle())
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(HeyUpColor.accent)
+                        .padding(.horizontal, 22).frame(height: 54)
+                        .background(HeyUpColor.card).cornerRadius(27)
+                        .overlay(RoundedRectangle(cornerRadius: 27).stroke(HeyUpColor.border))
                 }
                 .padding(.bottom, 30)
             }
             .padding(.horizontal, 24)
+
+            Button("‹ Home") { vm.goHome() }
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(HeyUpColor.textMuted)
+                .padding(.horizontal, 14).frame(height: 34)
+                .background(HeyUpColor.card).cornerRadius(17)
+                .overlay(RoundedRectangle(cornerRadius: 17).stroke(HeyUpColor.border))
+                .padding(.top, 12).padding(.leading, 16)
 
             if vm.showOneMinuteWarning {
                 oneMinuteBanner

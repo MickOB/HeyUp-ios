@@ -14,6 +14,10 @@ enum AppScreen {
     case settings
 }
 
+enum SettingsSub {
+    case exercise
+}
+
 /// Central state machine for the whole app — mirrors the HTML prototype's
 /// single ViewModel. Views read published state and call these methods;
 /// nothing here touches UI directly.
@@ -45,12 +49,17 @@ final class HeyUpViewModel: ObservableObject {
     @Published var comboLower: ExerciseType = .squats {       // used when exercise == .both
         didSet { UserDefaults.standard.set(comboLower.rawValue, forKey: Self.comboLowerKey) }
     }
+    // Tracks whether each combo style has been chosen during this visit to
+    // the exercise sub-screen, so we only auto-close once BOTH are picked.
+    @Published var comboUpperPicked = false
+    @Published var comboLowerPicked = false
     @Published var repGoal: Int = 5 {
         didSet { UserDefaults.standard.set(repGoal, forKey: Self.repGoalKey) }
     }
 
     // MARK: - Navigation / session state
     @Published var screen: AppScreen = .onboarding
+    @Published var settingsSub: SettingsSub? = nil
     @Published var secondsLeft: Int = 0
     @Published var totalSeconds: Int = 0
     @Published var isPaused = false
@@ -436,7 +445,7 @@ final class HeyUpViewModel: ObservableObject {
         }
         repGoal = 5
         skipStreak = 0
-        startTimer()
+        openSettings()
     }
 
     func keepGoingAfterSkips() {
@@ -459,8 +468,10 @@ final class HeyUpViewModel: ObservableObject {
         screen = .home
     }
 
-    func openSettings() { screen = .settings }
+    func openSettings() { screen = .settings; settingsSub = nil }
     func closeSettings() { screen = .home }
+    func openSubExercise() { settingsSub = .exercise }
+    func closeSub() { settingsSub = nil }
     func openHistory() { screen = .history }
     func closeHistory() { screen = .home }
 
@@ -481,14 +492,7 @@ final class HeyUpViewModel: ObservableObject {
         let today = Date()
         switch range {
         case .week:
-            return (0..<7).reversed().map { offset in
-                let date = cal.date(byAdding: .day, value: -offset, to: today)!
-                let stats = statsStore.stats(for: date)
-                let f = DateFormatter(); f.dateFormat = "EEE"
-                return HistoryBucket(label: f.string(from: date), totalReps: stats.totalReps, repsByExercise: stats.repsByExercise, isCurrent: offset == 0)
-            }
-        case .month:
-            return (0..<5).reversed().map { weekOffset in
+            return (0..<8).reversed().map { weekOffset in
                 var totalReps = 0
                 var byEx: [String: Int] = [:]
                 var weekStart: Date = today
@@ -502,7 +506,7 @@ final class HeyUpViewModel: ObservableObject {
                 let f = DateFormatter(); f.dateFormat = "MMM d"
                 return HistoryBucket(label: f.string(from: weekStart), totalReps: totalReps, repsByExercise: byEx, isCurrent: weekOffset == 0)
             }
-        case .year:
+        case .month:
             return (0..<12).reversed().map { monthOffset in
                 let monthDate = cal.date(byAdding: .month, value: -monthOffset, to: today)!
                 let range = cal.range(of: .day, in: .month, for: monthDate) ?? (1..<1)
@@ -524,13 +528,12 @@ final class HeyUpViewModel: ObservableObject {
 }
 
 enum HistoryRange: String, CaseIterable, Identifiable {
-    case week, month, year
+    case week, month
     var id: String { rawValue }
     var label: String {
         switch self {
         case .week: return "Week"
         case .month: return "Month"
-        case .year: return "Year"
         }
     }
 }
