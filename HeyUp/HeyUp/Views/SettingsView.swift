@@ -160,17 +160,6 @@ struct SettingsView: View {
                     }
                 }
 
-                Button("Done") {
-                    vm.closeSettings()
-                }
-                .font(.system(size: 18, weight: .heavy))
-                .foregroundColor(.black)
-                .frame(width: 160).frame(height: 48)
-                .background(HeyUpColor.accent)
-                .cornerRadius(24)
-                .frame(maxWidth: .infinity)
-                .padding(.top, 8)
-
                 Button("Change name or age (redo onboarding)") {
                     vm.screen = .onboarding
                 }
@@ -199,6 +188,21 @@ struct SettingsView: View {
 
             }
             .padding(20)
+            .padding(.bottom, 70)
+        }
+        .safeAreaInset(edge: .bottom) {
+            Button("Done") {
+                vm.closeSettings()
+            }
+            .font(.system(size: 18, weight: .heavy))
+            .foregroundColor(.black)
+            .frame(maxWidth: .infinity)
+            .frame(height: 52)
+            .background(HeyUpColor.accent)
+            .clipShape(Capsule())
+            .padding(.horizontal, 20)
+            .padding(.vertical, 8)
+            .background(HeyUpColor.background.opacity(0.96))
         }
     }
 
