@@ -14,7 +14,6 @@
 		04B3F4FD3005D8E5008D3C3F /* Exceptions for "HeyUp" folder in "HeyUp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Assets.xcassets,
 				Info.plist,
 			);
 			target = 0440B1553004A09000B4986B /* HeyUp */;
