@@ -4,6 +4,7 @@ import SwiftUI
 struct PaywallView: View {
     @EnvironmentObject var vm: HeyUpViewModel
     @Environment(\.openURL) private var openURL
+    @State private var selectedProductID = PurchaseManager.annualID
 
     var body: some View {
         ScrollView {
@@ -15,19 +16,19 @@ struct PaywallView: View {
                 }
 
                 HeyUpWordmark(size: 42)
-                Text("Keep your momentum going")
-                    .font(.system(size: 30, weight: .heavy))
+                Text("Build strength into the day you already have")
+                    .font(.system(size: 29, weight: .heavy))
                     .multilineTextAlignment(.center)
-                Text("Try every Pro feature free for 7 days. Cancel anytime in your Apple Account settings.")
+                Text("Choose the plan that fits your routine. Annual Pro includes 7 days free.")
                     .font(.system(size: 16))
                     .foregroundColor(HeyUpColor.textSecondary)
                     .multilineTextAlignment(.center)
 
                 VStack(alignment: .leading, spacing: 12) {
-                    benefit("Unlimited movement breaks")
-                    benefit("Mix exercises automatically")
-                    benefit("Combine push-ups and squats")
-                    benefit("Full progress history and future Pro programs")
+                    benefit("Stay consistent without planning long workouts")
+                    benefit("Let HeyUp remind you and count every rep")
+                    benefit("Mix and combine exercises automatically")
+                    benefit("See your progress build over time")
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(18)
@@ -42,28 +43,32 @@ struct PaywallView: View {
                         .padding(.vertical, 30)
                 } else {
                     VStack(spacing: 12) {
-                        purchaseCard(
+                        subscriptionCard(
                             product: vm.purchaseManager.annualProduct,
+                            id: PurchaseManager.annualID,
                             title: "Annual Pro",
-                            fallbackPrice: "$49.99 / year",
-                            badge: "BEST VALUE",
-                            detail: "7 days free, then annual billing"
+                            price: annualMonthlyPrice,
+                            detail: "\(annualFullPrice) billed annually · 7 days free",
+                            badge: "BEST VALUE · SAVE \(annualSavingsPercent)%"
                         )
-                        purchaseCard(
+                        subscriptionCard(
                             product: vm.purchaseManager.monthlyProduct,
+                            id: PurchaseManager.monthlyID,
                             title: "Monthly Pro",
-                            fallbackPrice: "$8.99 / month",
-                            badge: nil,
-                            detail: "7 days free, then monthly billing"
-                        )
-                        purchaseCard(
-                            product: vm.purchaseManager.lifetimeProduct,
-                            title: "Founders Lifetime",
-                            fallbackPrice: "$99.99 once",
-                            badge: "LIMITED LAUNCH OFFER",
-                            detail: "Pay once. Keep Pro permanently."
+                            price: monthlyPrice,
+                            detail: "Billed monthly · no free trial",
+                            badge: nil
                         )
                     }
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("PREFER TO PAY ONCE?")
+                            .font(.system(size: 12, weight: .heavy))
+                            .foregroundColor(HeyUpColor.textFaint)
+                            .tracking(0.7)
+                        lifetimeCard
+                    }
+                    .padding(.top, 8)
                 }
 
                 if let error = vm.purchaseManager.purchaseError {
@@ -91,13 +96,49 @@ struct PaywallView: View {
                 .font(.system(size: 12, weight: .medium))
                 .foregroundColor(HeyUpColor.textMuted)
 
-                Text("Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period. Payment is charged to your Apple Account.")
+                Text(legalCopy)
                     .font(.system(size: 11))
                     .foregroundColor(HeyUpColor.textFaint)
                     .multilineTextAlignment(.center)
             }
             .padding(22)
+            .padding(.bottom, 88)
         }
+        .safeAreaInset(edge: .bottom) {
+            purchaseButton
+                .padding(.horizontal, 20)
+                .padding(.vertical, 8)
+                .background(HeyUpColor.background.opacity(0.97))
+        }
+    }
+
+    private var purchaseButton: some View {
+        Button {
+            guard let product = selectedProduct else {
+                vm.purchaseManager.purchaseError = "Apple purchase testing is not connected yet."
+                return
+            }
+            Task {
+                if await vm.purchaseManager.purchase(product) {
+                    vm.purchaseCompleted()
+                }
+            }
+        } label: {
+            Group {
+                if vm.purchaseManager.isPurchasing {
+                    ProgressView().tint(.black)
+                } else {
+                    Text(purchaseButtonTitle)
+                }
+            }
+            .font(.system(size: 17, weight: .heavy))
+            .foregroundColor(.black)
+            .frame(maxWidth: .infinity)
+            .frame(height: 54)
+            .background(HeyUpColor.accent)
+            .clipShape(Capsule())
+        }
+        .disabled(vm.purchaseManager.isPurchasing || vm.purchaseManager.isLoading)
     }
 
     private func benefit(_ text: String) -> some View {
@@ -112,35 +153,28 @@ struct PaywallView: View {
         }
     }
 
-    private func purchaseCard(
+    private func subscriptionCard(
         product: Product?,
+        id: String,
         title: String,
-        fallbackPrice: String,
-        badge: String?,
-        detail: String
+        price: String,
+        detail: String,
+        badge: String?
     ) -> some View {
-        Button {
-            guard let product else {
-                vm.purchaseManager.purchaseError = "Apple purchase testing is not connected yet."
-                return
-            }
-            Task {
-                if await vm.purchaseManager.purchase(product) {
-                    vm.purchaseCompleted()
-                }
-            }
-        } label: {
+        selectionCard(id: id) {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text(title).font(.system(size: 18, weight: .heavy))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(title).font(.system(size: 18, weight: .heavy))
+                        Text(price).font(.system(size: 21, weight: .heavy))
+                    }
                     Spacer()
-                    Text(product?.displayPrice ?? fallbackPrice)
-                        .font(.system(size: 16, weight: .bold))
+                    selectionIndicator(id: id)
                 }
                 if let badge {
                     Text(badge)
                         .font(.system(size: 10, weight: .heavy))
-                        .tracking(0.6)
+                        .tracking(0.5)
                         .foregroundColor(.black)
                         .padding(.horizontal, 9)
                         .frame(height: 24)
@@ -151,13 +185,109 @@ struct PaywallView: View {
                     .font(.system(size: 13))
                     .foregroundColor(HeyUpColor.textMuted)
             }
-            .foregroundColor(HeyUpColor.textPrimary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(17)
-            .background(HeyUpColor.card)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .overlay(RoundedRectangle(cornerRadius: 16).stroke(title == "Annual Pro" ? HeyUpColor.accent : HeyUpColor.border, lineWidth: title == "Annual Pro" ? 2 : 1))
         }
-        .disabled(vm.purchaseManager.isPurchasing)
+        .accessibilityLabel("\(title), \(product?.displayPrice ?? price), \(detail)")
+    }
+
+    private var lifetimeCard: some View {
+        selectionCard(id: PurchaseManager.lifetimeID) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Founders Lifetime").font(.system(size: 18, weight: .heavy))
+                        Text(lifetimePrice).font(.system(size: 21, weight: .heavy))
+                    }
+                    Spacer()
+                    selectionIndicator(id: PurchaseManager.lifetimeID)
+                }
+                Text("LIMITED LAUNCH AVAILABILITY")
+                    .font(.system(size: 10, weight: .heavy))
+                    .tracking(0.5)
+                    .foregroundColor(HeyUpColor.accent)
+                Text("One payment. Keep Pro permanently.")
+                    .font(.system(size: 13))
+                    .foregroundColor(HeyUpColor.textMuted)
+            }
+        }
+    }
+
+    private func selectionCard<Content: View>(
+        id: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        let selected = selectedProductID == id
+        return Button {
+            selectedProductID = id
+            vm.purchaseManager.purchaseError = nil
+        } label: {
+            content()
+                .foregroundColor(HeyUpColor.textPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(17)
+                .background(HeyUpColor.card)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(selected ? HeyUpColor.accent : HeyUpColor.border, lineWidth: selected ? 2 : 1)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func selectionIndicator(id: String) -> some View {
+        Circle()
+            .strokeBorder(selectedProductID == id ? HeyUpColor.accent : HeyUpColor.border,
+                          lineWidth: selectedProductID == id ? 6 : 2)
+            .background(Circle().fill(HeyUpColor.background))
+            .frame(width: 22, height: 22)
+    }
+
+    private var selectedProduct: Product? {
+        switch selectedProductID {
+        case PurchaseManager.monthlyID: return vm.purchaseManager.monthlyProduct
+        case PurchaseManager.lifetimeID: return vm.purchaseManager.lifetimeProduct
+        default: return vm.purchaseManager.annualProduct
+        }
+    }
+
+    private var purchaseButtonTitle: String {
+        switch selectedProductID {
+        case PurchaseManager.monthlyID: return "Continue with Monthly Pro"
+        case PurchaseManager.lifetimeID: return "Unlock Lifetime Pro"
+        default: return "Start my 7-day free trial"
+        }
+    }
+
+    private var monthlyPrice: String {
+        "\(vm.purchaseManager.monthlyProduct?.displayPrice ?? "$8.99") / month"
+    }
+
+    private var annualFullPrice: String {
+        vm.purchaseManager.annualProduct?.displayPrice ?? "$49.99"
+    }
+
+    private var annualMonthlyPrice: String {
+        guard let annual = vm.purchaseManager.annualProduct else { return "$4.17 / month" }
+        return "\((annual.price / 12).formatted(annual.priceFormatStyle)) / month"
+    }
+
+    private var lifetimePrice: String {
+        "\(vm.purchaseManager.lifetimeProduct?.displayPrice ?? "$99.99") once"
+    }
+
+    private var annualSavingsPercent: Int {
+        guard let monthly = vm.purchaseManager.monthlyProduct,
+              let annual = vm.purchaseManager.annualProduct else { return 54 }
+        let fullMonthlyYear = monthly.price * 12
+        guard fullMonthlyYear > 0 else { return 54 }
+        let savings = (fullMonthlyYear - annual.price) / fullMonthlyYear * 100
+        return NSDecimalNumber(decimal: savings).intValue
+    }
+
+    private var legalCopy: String {
+        if selectedProductID == PurchaseManager.lifetimeID {
+            return "Lifetime Pro is a one-time purchase charged to your Apple Account."
+        }
+        return "Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period. Payment is charged to your Apple Account."
     }
 }

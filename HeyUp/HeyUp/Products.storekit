@@ -82,12 +82,6 @@
           "familyShareable" : false,
           "groupNumber" : 2,
           "internalID" : "4D865E17-F08D-4E30-9B73-4B38D8D348C9",
-          "introductoryOffer" : {
-            "internalID" : "1F16AB38-CAB6-4905-8AD7-760410D57FA9",
-            "numberOfPeriods" : 1,
-            "paymentMode" : "free",
-            "subscriptionPeriod" : "P1W"
-          },
           "localizations" : [
             {
               "description" : "Unlimited HeyUp Pro access, billed monthly.",
