@@ -8,8 +8,15 @@ final class NotificationManager {
     static let shared = NotificationManager()
     private init() {}
 
+    static let yorkshireVoiceCueKey = "heyup-yorkshire-voice-cue"
     private let warningID = "heyup-warning"
     private let breakID = "heyup-break-ready"
+
+    private var yorkshireVoiceCueEnabled: Bool {
+        let defaults = UserDefaults.standard
+        guard defaults.object(forKey: Self.yorkshireVoiceCueKey) != nil else { return true }
+        return defaults.bool(forKey: Self.yorkshireVoiceCueKey)
+    }
 
     func requestPermission(completion: @escaping (Bool) -> Void) {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
@@ -34,7 +41,9 @@ final class NotificationManager {
         let breakContent = UNMutableNotificationContent()
         breakContent.title = "HeyUp"
         breakContent.body = "Time to move — your break is ready."
-        breakContent.sound = .default
+        breakContent.sound = yorkshireVoiceCueEnabled
+            ? UNNotificationSound(named: UNNotificationSoundName(rawValue: "heyup.caf"))
+            : .default
         let breakTrigger = UNTimeIntervalNotificationTrigger(timeInterval: totalSeconds, repeats: false)
         let breakRequest = UNNotificationRequest(identifier: breakID, content: breakContent, trigger: breakTrigger)
 
@@ -47,4 +56,21 @@ final class NotificationManager {
         UNUserNotificationCenter.current()
             .removePendingNotificationRequests(withIdentifiers: [warningID, breakID])
     }
+
+#if DEBUG
+    func scheduleVoiceCueTest() {
+        let content = UNMutableNotificationContent()
+        content.title = "HeyUp"
+        content.body = "Test complete — your Yorkshire voice cue is working."
+        content.sound = yorkshireVoiceCueEnabled
+            ? UNNotificationSound(named: UNNotificationSoundName(rawValue: "heyup.caf"))
+            : .default
+        let request = UNNotificationRequest(
+            identifier: "heyup-voice-cue-test",
+            content: content,
+            trigger: UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+        )
+        UNUserNotificationCenter.current().add(request)
+    }
+#endif
 }

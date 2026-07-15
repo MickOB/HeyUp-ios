@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var vm: HeyUpViewModel
     @Environment(\.openURL) private var openURL
+    @AppStorage(NotificationManager.yorkshireVoiceCueKey) private var yorkshireVoiceCueEnabled = true
 
     var body: some View {
         Group {
@@ -83,6 +84,23 @@ struct SettingsView: View {
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(HeyUpColor.accent)
                     }
+                }
+
+                group("NOTIFICATIONS") {
+                    Toggle(isOn: $yorkshireVoiceCueEnabled) {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Yorkshire voice cue")
+                                .font(.system(size: 16, weight: .semibold))
+                            Text("Hear Mick say “Ey up!” when your movement break is ready.")
+                                .font(.system(size: 12.5))
+                                .foregroundColor(HeyUpColor.textMuted)
+                        }
+                    }
+                    .tint(HeyUpColor.accent)
+                    .padding(15)
+                    .background(HeyUpColor.card)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(HeyUpColor.border))
                 }
 
                 group("I'M SETTLING IN FOR") {
@@ -180,6 +198,12 @@ struct SettingsView: View {
                 group("LOCAL TESTING") {
                     Button("Reset free-plan allowance") {
                         vm.resetFreePlanForTesting()
+                    }
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(HeyUpColor.accent)
+
+                    Button("Test notification sound in 5 seconds") {
+                        NotificationManager.shared.scheduleVoiceCueTest()
                     }
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(HeyUpColor.accent)
