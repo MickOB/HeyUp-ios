@@ -1,28 +1,28 @@
 import SwiftUI
 import UIKit
 
-/// 8-step onboarding: welcome → permissions primer → about you (sex, age,
-/// name) → fitness level → how it works → notifications/camera perms →
-/// accountability message → starting plan.
+/// 9-step onboarding: welcome → why strength matters → equipment-free primer →
+/// about you → fitness level → how it works → referral source → permissions →
+/// starting plan.
 struct OnboardingView: View {
     @EnvironmentObject var vm: HeyUpViewModel
     @State private var step = 1
     @FocusState private var isNameFieldFocused: Bool
-    private let totalSteps = 8
+    private let totalSteps = 9
 
     var body: some View {
         VStack(spacing: 16) {
-            // Steps 2 (About you) and 5 (Where did you hear) have enough
+            // Steps 4 (About you) and 7 (Where did you hear) have enough
             // content that centering them left a large empty gap up top —
             // pin them to the top instead, matching the prototype.
-            if step == 2 {
+            if step == 4 {
                 ScrollView {
                     aboutYouStep
                         .padding(.top, 20)
                         .padding(.bottom, 8)
                 }
                 .scrollDismissesKeyboard(.interactively)
-            } else if step == 5 {
+            } else if step == 7 {
                 sourceStep
                     .padding(.top, 20)
                 Spacer()
@@ -31,10 +31,11 @@ struct OnboardingView: View {
                 Group {
                     switch step {
                     case 1: welcomeStep
-                    case 3: fitnessStep
-                    case 4: howItWorksStep
-                    case 6: permissionsStep
-                    case 7: accountabilityStep
+                    case 2: accountabilityStep
+                    case 3: equipmentFreeStep
+                    case 5: fitnessStep
+                    case 6: howItWorksStep
+                    case 8: permissionsStep
                     default: startingPlanStep
                     }
                 }
@@ -56,7 +57,7 @@ struct OnboardingView: View {
                         step += 1
                     }
                 }
-                .buttonStyle(PrimaryButtonStyle())
+                .buttonStyle(PrimaryButtonStyle(fullWidth: true))
                 .font(.system(size: 22, weight: .bold))
                 .frame(maxWidth: .infinity)
                 .frame(height: 80)
@@ -89,6 +90,50 @@ struct OnboardingView: View {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 280)
         }
+    }
+
+    private var equipmentFreeStep: some View {
+        VStack(spacing: 22) {
+            Text("STRENGTH THAT FITS YOUR LIFE")
+                .font(.system(size: 15, weight: .bold))
+                .tracking(2)
+                .foregroundColor(HeyUpColor.accent)
+            Text("Muscle naturally declines with age.")
+                .font(.system(size: 32, weight: .heavy))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 320)
+            Text("No gym required. Simple bodyweight exercises can help you stay strong and mobile.")
+                .font(.system(size: 18))
+                .foregroundColor(HeyUpColor.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+                .frame(maxWidth: 310)
+            HStack(alignment: .top, spacing: 12) {
+                simpleBenefitIcon(symbol: "heart.fill", label: "Support\nstrength")
+                simpleBenefitIcon(symbol: "figure.strengthtraining.functional", label: "Move your\nbody")
+                simpleBenefitIcon(symbol: "house.fill", label: "Train at\nhome")
+            }
+            .padding(.top, 12)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func simpleBenefitIcon(symbol: String, label: String) -> some View {
+        VStack(spacing: 10) {
+            Image(systemName: symbol)
+                .font(.system(size: 25, weight: .semibold))
+                .foregroundColor(HeyUpColor.accent)
+                .frame(width: 58, height: 58)
+                .background(HeyUpColor.card)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(HeyUpColor.border))
+            Text(label)
+                .font(.system(size: 13.5, weight: .semibold))
+                .foregroundColor(HeyUpColor.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(2)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     private var aboutYouStep: some View {
@@ -202,25 +247,28 @@ struct OnboardingView: View {
 
     private var sourceStep: some View {
         VStack(alignment: .leading, spacing: 22) {
-            Text("Where did you hear about us?").font(.system(size: 28, weight: .heavy)).padding(.leading, 2)
+            Text("Where did you hear about us?")
+                .font(.system(size: 28, weight: .heavy))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
             ScrollView {
                 sourceListButtons(["TikTok", "Instagram", "YouTube", "Facebook", "X (Twitter)", "Reddit", "Friend or family", "App Store", "Other"], selection: $vm.profile.source)
             }
             Text("Optional — helps us know where to say hi.")
-                .font(.system(size: 12)).foregroundColor(HeyUpColor.textFaint).padding(.leading, 2)
+                .font(.system(size: 12)).foregroundColor(HeyUpColor.textFaint)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
         }
     }
 
-    private static let sourceBrandColors: [String: Color] = [
-        "TikTok": Color(red: 0.933, green: 0.114, blue: 0.322),
-        "Instagram": Color(red: 0.757, green: 0.208, blue: 0.518),
-        "YouTube": Color(red: 1.0, green: 0.0, blue: 0.0),
-        "Facebook": Color(red: 0.094, green: 0.467, blue: 0.949),
-        "X (Twitter)": Color(red: 0.961, green: 0.961, blue: 0.961),
-        "Reddit": Color(red: 1.0, green: 0.271, blue: 0.0),
-        "Friend or family": HeyUpColor.textMuted,
-        "App Store": Color(red: 0.039, green: 0.518, blue: 1.0),
-        "Other": Color(red: 0.353, green: 0.388, blue: 0.314)
+    private static let sourceBrandAssets: [String: String] = [
+        "TikTok": "BrandTikTok",
+        "Instagram": "BrandInstagram",
+        "YouTube": "BrandYouTube",
+        "Facebook": "BrandFacebook",
+        "X (Twitter)": "BrandX",
+        "Reddit": "BrandReddit",
+        "App Store": "BrandAppStore"
     ]
 
     /// Same full-width listed row as `listButtons`, with a small colored
@@ -232,17 +280,16 @@ struct OnboardingView: View {
                 Button {
                     selection.wrappedValue = opt
                 } label: {
-                    HStack(spacing: 12) {
-                        Text(String(opt.prefix(1)))
-                            .font(.system(size: 12, weight: .heavy))
-                            .foregroundColor(.white)
-                            .frame(width: 26, height: 26)
-                            .background(Self.sourceBrandColors[opt] ?? HeyUpColor.textMuted)
-                            .cornerRadius(8)
-                        Text(opt).font(.system(size: 15, weight: .medium))
-                        Spacer()
+                    ZStack {
+                        HStack(spacing: 12) {
+                            sourceBadge(opt)
+                            Text(opt).font(.system(size: 16, weight: .medium))
+                        }
                         if selection.wrappedValue == opt {
-                            Text("✓").font(.system(size: 15, weight: .bold))
+                            HStack {
+                                Spacer()
+                                Text("✓").font(.system(size: 16, weight: .bold))
+                            }
                         }
                     }
                     .foregroundColor(selection.wrappedValue == opt ? .black : HeyUpColor.textPrimary)
@@ -253,6 +300,50 @@ struct OnboardingView: View {
                     .overlay(RoundedRectangle(cornerRadius: 14).stroke(selection.wrappedValue == opt ? HeyUpColor.accent : HeyUpColor.border))
                 }
             }
+        }
+    }
+
+    private func sourceBadge(_ option: String) -> some View {
+        ZStack {
+            sourceBadgeBackground(option)
+            if let asset = Self.sourceBrandAssets[option] {
+                Image(asset)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(7)
+            } else {
+                Image(systemName: option == "Friend or family" ? "person.2.fill" : "ellipsis")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundColor(.white)
+            }
+        }
+        .frame(width: 34, height: 34)
+        .clipShape(RoundedRectangle(cornerRadius: 9))
+    }
+
+    @ViewBuilder
+    private func sourceBadgeBackground(_ option: String) -> some View {
+        if option == "Instagram" {
+            LinearGradient(
+                colors: [Color(red: 0.50, green: 0.16, blue: 0.76), Color(red: 0.92, green: 0.18, blue: 0.39), Color(red: 0.98, green: 0.57, blue: 0.16)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            RoundedRectangle(cornerRadius: 9)
+                .fill(sourceBadgeColor(option))
+        }
+    }
+
+    private func sourceBadgeColor(_ option: String) -> Color {
+        switch option {
+        case "YouTube": return Color(red: 1, green: 0, blue: 0)
+        case "Facebook": return Color(red: 0.086, green: 0.466, blue: 0.937)
+        case "Reddit": return Color(red: 1, green: 0.271, blue: 0)
+        case "App Store": return Color(red: 0.039, green: 0.518, blue: 1)
+        case "Friend or family": return HeyUpColor.textMuted
+        case "Other": return Color(red: 0.353, green: 0.388, blue: 0.314)
+        default: return .black
         }
     }
 
@@ -463,14 +554,17 @@ struct OnboardingView: View {
 // MARK: - Reusable styles
 
 struct PrimaryButtonStyle: ButtonStyle {
+    var fullWidth = false
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 16, weight: .bold))
             .foregroundColor(.black)
             .padding(.horizontal, 28)
-            .frame(height: 52)
+            .frame(maxWidth: fullWidth ? .infinity : nil)
+            .frame(height: fullWidth ? 64 : 52)
             .background(configuration.isPressed ? HeyUpColor.accentHover : HeyUpColor.accent)
-            .cornerRadius(26)
+            .cornerRadius(fullWidth ? 32 : 26)
     }
 }
 
