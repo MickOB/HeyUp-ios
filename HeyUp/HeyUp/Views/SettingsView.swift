@@ -86,23 +86,6 @@ struct SettingsView: View {
                     }
                 }
 
-                group("NOTIFICATIONS") {
-                    Toggle(isOn: $yorkshireVoiceCueEnabled) {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text("Yorkshire voice cue")
-                                .font(.system(size: 16, weight: .semibold))
-                            Text("Hear Mick say “Ey up!” when your movement break is ready.")
-                                .font(.system(size: 12.5))
-                                .foregroundColor(HeyUpColor.textMuted)
-                        }
-                    }
-                    .tint(HeyUpColor.accent)
-                    .padding(15)
-                    .background(HeyUpColor.card)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(HeyUpColor.border))
-                }
-
                 group("I'M SETTLING IN FOR") {
                     HStack(spacing: 4) {
                         ForEach(SessionType.allCases) { t in
@@ -123,7 +106,7 @@ struct SettingsView: View {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
                         ForEach([20, 30, 45, 60, 90, 120], id: \.self) { m in
                             Button("\(m) min") { vm.intervalMinutes = m }
-                                .font(.system(size: 13, weight: .bold))
+                                .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(vm.intervalMinutes == m ? .black : HeyUpColor.textMuted)
                                 .frame(height: 38).frame(maxWidth: .infinity)
                                 .background(vm.intervalMinutes == m ? HeyUpColor.accent : HeyUpColor.card)
@@ -137,7 +120,7 @@ struct SettingsView: View {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
                         ForEach([2, 4, 6, 8], id: \.self) { h in
                             Button("\(h)h") { vm.sessionLengthHours = h }
-                                .font(.system(size: 13, weight: .bold))
+                                .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(vm.sessionLengthHours == h ? .black : HeyUpColor.textMuted)
                                 .frame(height: 38).frame(maxWidth: .infinity)
                                 .background(vm.sessionLengthHours == h ? HeyUpColor.accent : HeyUpColor.card)
@@ -168,7 +151,7 @@ struct SettingsView: View {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
                         ForEach([2, 5, 10, 15, 20, 30, 40, 50], id: \.self) { n in
                             Button("\(n)") { vm.repGoal = n }
-                                .font(.system(size: 13, weight: .bold))
+                                .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(vm.repGoal == n ? .black : HeyUpColor.textSecondary)
                                 .frame(height: 38).frame(maxWidth: .infinity)
                                 .background(vm.repGoal == n ? HeyUpColor.accent : HeyUpColor.card)
@@ -193,6 +176,23 @@ struct SettingsView: View {
                 .foregroundColor(HeyUpColor.warn)
                 .frame(maxWidth: .infinity).frame(height: 44)
                 .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color(red: 0.227, green: 0.165, blue: 0.141)))
+
+                group("NOTIFICATIONS") {
+                    Toggle(isOn: $yorkshireVoiceCueEnabled) {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Yorkshire voice cue")
+                                .font(.system(size: 16, weight: .semibold))
+                            Text("Hear Mick say “Ey up!” when your movement break is ready.")
+                                .font(.system(size: 12.5))
+                                .foregroundColor(HeyUpColor.textMuted)
+                        }
+                    }
+                    .tint(HeyUpColor.accent)
+                    .padding(15)
+                    .background(HeyUpColor.card)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(HeyUpColor.border))
+                }
 
 #if DEBUG
                 group("LOCAL TESTING") {

@@ -155,6 +155,7 @@ struct HomeView: View {
                 .font(.system(size: 12)).foregroundColor(HeyUpColor.textMuted)
                 .multilineTextAlignment(.center)
                 .frame(minHeight: 17)
+            chartLegend(week: week)
         }
         .padding(.horizontal, 14).padding(.vertical, 12)
         .background(HeyUpColor.card).cornerRadius(14)
@@ -162,6 +163,26 @@ struct HomeView: View {
     }
 
     private struct BarSegment { let exercise: ExerciseType; let height: CGFloat }
+
+    private func chartLegend(week: [(date: Date, stats: DailyStats)]) -> some View {
+        let exercises = ExerciseType.countable.filter { exercise in
+            week.contains { ($0.stats.repsByExercise[exercise.rawValue] ?? 0) > 0 }
+        }
+        return LazyVGrid(columns: [GridItem(.adaptive(minimum: 105), spacing: 8)], alignment: .leading, spacing: 6) {
+            ForEach(exercises) { exercise in
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(Self.exColors[exercise] ?? HeyUpColor.textMuted)
+                        .frame(width: 9, height: 9)
+                    Text(exercise.displayName)
+                        .font(.system(size: 11.5, weight: .medium))
+                        .foregroundColor(HeyUpColor.textSecondary)
+                        .lineLimit(1)
+                }
+            }
+        }
+        .padding(.top, exercises.isEmpty ? 0 : 4)
+    }
 
     /// Splits a day's total bar height proportionally across the exercises
     /// that contributed reps, so a mixed day reads as a stacked bar —
