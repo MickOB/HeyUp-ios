@@ -48,7 +48,7 @@ struct PaywallView: View {
                             id: PurchaseManager.annualID,
                             title: "Annual Pro",
                             price: annualMonthlyPrice,
-                            detail: "\(annualFullPrice) billed annually · 7 days free",
+                            detail: "7 days free · then \(annualFullPrice) per year",
                             badge: "BEST VALUE · SAVE \(annualSavingsPercent)%"
                         )
                         subscriptionCard(
@@ -105,7 +105,14 @@ struct PaywallView: View {
             .padding(.bottom, 88)
         }
         .safeAreaInset(edge: .bottom) {
-            purchaseButton
+            VStack(spacing: 6) {
+                purchaseButton
+                Text(purchaseDisclosure)
+                    .font(.system(size: 11.5, weight: .medium))
+                    .foregroundColor(HeyUpColor.textMuted)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 350)
+            }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 8)
                 .background(HeyUpColor.background.opacity(0.97))
@@ -254,7 +261,18 @@ struct PaywallView: View {
         switch selectedProductID {
         case PurchaseManager.monthlyID: return "Continue with Monthly Pro"
         case PurchaseManager.lifetimeID: return "Unlock Lifetime Pro"
-        default: return "Start my 7-day free trial"
+        default: return "Try 7 days free"
+        }
+    }
+
+    private var purchaseDisclosure: String {
+        switch selectedProductID {
+        case PurchaseManager.monthlyID:
+            return "You'll be charged \(monthlyPrice) today. Cancel anytime."
+        case PurchaseManager.lifetimeID:
+            return "You'll be charged \(lifetimePrice). No subscription."
+        default:
+            return "You won't be charged today. After 7 days, your \(annualFullPrice)-per-year plan begins unless you cancel before the trial ends."
         }
     }
 
