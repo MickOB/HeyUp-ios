@@ -56,7 +56,7 @@ struct PaywallView: View {
                             id: PurchaseManager.monthlyID,
                             title: "Monthly Pro",
                             price: monthlyPrice,
-                            detail: "Billed monthly · no free trial",
+                            detail: "Billed monthly · cancel anytime",
                             badge: nil
                         )
                     }
