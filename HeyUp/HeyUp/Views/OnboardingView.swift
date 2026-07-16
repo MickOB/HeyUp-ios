@@ -93,9 +93,15 @@ struct OnboardingView: View {
 
     private var aboutYouStep: some View {
         VStack(alignment: .leading, spacing: 28) {
-            Text("About you").font(.system(size: 28, weight: .heavy)).padding(.leading, 2)
+            Text("About you")
+                .font(.system(size: 28, weight: .heavy))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
             VStack(alignment: .leading, spacing: 10) {
-                Text("Sex").font(.system(size: 28, weight: .semibold)).foregroundColor(HeyUpColor.textSecondary)
+                Text("Sex")
+                    .font(.system(size: 28, weight: .semibold))
+                    .foregroundColor(HeyUpColor.textSecondary)
+                    .frame(maxWidth: .infinity)
                 wrapButtons(["Female", "Male", "Prefer not to say"], selection: $vm.profile.sex)
             }
             VStack(alignment: .leading, spacing: 10) {
@@ -128,8 +134,12 @@ struct OnboardingView: View {
                 .font(.system(size: 32, weight: .heavy))
                 .lineSpacing(2)
                 .fixedSize(horizontal: false, vertical: true)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
             Text("Honest answer — we'll pick the right starting point.")
                 .font(.system(size: 15)).foregroundColor(HeyUpColor.textSecondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
             VStack(spacing: 8) {
                 ForEach(FitnessLevel.allCases, id: \.self) { level in
                     optionCard(
@@ -153,11 +163,18 @@ struct OnboardingView: View {
 
     private var howItWorksStep: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("A SIMPLE WAY FORWARD").font(.system(size: 17, weight: .bold)).foregroundColor(HeyUpColor.accent)
+            Text("A SIMPLE WAY FORWARD")
+                .font(.system(size: 17, weight: .bold)).foregroundColor(HeyUpColor.accent)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
             Text("A stronger future can start small.")
                 .font(.system(size: 32, weight: .heavy)).lineSpacing(4)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
             Text("You don't need to redesign your life. HeyUp helps you build a repeatable strength habit inside the day you already have.")
                 .font(.system(size: 15.5)).foregroundColor(HeyUpColor.textSecondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
             VStack(alignment: .leading, spacing: 0) {
                 howStep(1, "Choose a TV time, Home office, or Daily life block.")
                 howStep(2, "When time is up, take a short movement break.")
@@ -166,6 +183,8 @@ struct OnboardingView: View {
             .padding(.top, 4)
             Text("Small sessions. Clear guidance. Consistency you can actually keep.")
                 .font(.system(size: 15.5)).foregroundColor(HeyUpColor.textSecondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
                 .padding(.top, 16)
                 .overlay(Rectangle().frame(height: 1).foregroundColor(HeyUpColor.border), alignment: .top)
         }
@@ -321,6 +340,8 @@ struct OnboardingView: View {
             Divider().background(HeyUpColor.border).padding(.bottom, 2)
             Text("Regular activity can help slow age-related strength decline, and it is never too late — or too early — to begin.")
                 .font(.system(size: 14.5)).foregroundColor(HeyUpColor.textMuted).lineSpacing(3)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
             Text("Show up today.\nYour future self will thank you.")
                 .font(.system(size: 20, weight: .heavy)).foregroundColor(HeyUpColor.accent)
                 .multilineTextAlignment(.center).frame(maxWidth: .infinity)

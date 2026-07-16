@@ -52,12 +52,13 @@ struct TimerView: View {
             .padding(.horizontal, 24)
 
             Button("‹ Home") { vm.goHome() }
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(HeyUpColor.textMuted)
-                .padding(.horizontal, 14).frame(height: 34)
-                .background(HeyUpColor.card).cornerRadius(17)
-                .overlay(RoundedRectangle(cornerRadius: 17).stroke(HeyUpColor.border))
-                .padding(.top, 12).padding(.leading, 16)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundColor(HeyUpColor.accent)
+                .padding(.horizontal, 18).frame(height: 44)
+                .background(HeyUpColor.card).cornerRadius(22)
+                .overlay(RoundedRectangle(cornerRadius: 22).stroke(HeyUpColor.border))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 12).padding(.horizontal, 20)
 
             if vm.showOneMinuteWarning {
                 oneMinuteBanner

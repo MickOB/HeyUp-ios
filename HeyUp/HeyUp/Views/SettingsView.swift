@@ -22,25 +22,18 @@ struct SettingsView: View {
                     Button("‹ Back") { vm.closeSettings() }
                         .buttonStyle(SecondaryPillStyle())
                     Text("Settings").font(.system(size: 33, weight: .heavy))
-                }
-
-                HStack(spacing: 8) {
-                    Button("Support") {
-                        openURL(URL(string: "https://heyup-support.mickbrown562.chatgpt.site/#support")!)
+                    Spacer(minLength: 8)
+                    VStack(alignment: .trailing, spacing: 5) {
+                        Button("Support") {
+                            openURL(URL(string: "https://heyup-support.mickbrown562.chatgpt.site/#support")!)
+                        }
+                        Button("Privacy") {
+                            openURL(URL(string: "https://heyup-support.mickbrown562.chatgpt.site/#privacy")!)
+                        }
                     }
-                    .frame(maxWidth: .infinity)
-
-                    Button("Privacy") {
-                        openURL(URL(string: "https://heyup-support.mickbrown562.chatgpt.site/#privacy")!)
-                    }
-                    .frame(maxWidth: .infinity)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(HeyUpColor.accent)
                 }
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(HeyUpColor.accent)
-                .frame(height: 44)
-                .background(HeyUpColor.card)
-                .clipShape(RoundedRectangle(cornerRadius: 22))
-                .overlay(RoundedRectangle(cornerRadius: 22).stroke(HeyUpColor.border))
 
                 group("HEYUP PLAN") {
                     HStack {
