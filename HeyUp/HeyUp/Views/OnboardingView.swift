@@ -120,6 +120,11 @@ struct OnboardingView: View {
 
     private func simpleBenefitIcon(symbol: String, label: String) -> some View {
         VStack(spacing: 10) {
+            Text(label)
+                .font(.system(size: 13.5, weight: .semibold))
+                .foregroundColor(HeyUpColor.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(2)
             Image(systemName: symbol)
                 .font(.system(size: 25, weight: .semibold))
                 .foregroundColor(HeyUpColor.accent)
@@ -127,11 +132,6 @@ struct OnboardingView: View {
                 .background(HeyUpColor.card)
                 .clipShape(Circle())
                 .overlay(Circle().stroke(HeyUpColor.border))
-            Text(label)
-                .font(.system(size: 13.5, weight: .semibold))
-                .foregroundColor(HeyUpColor.textSecondary)
-                .multilineTextAlignment(.center)
-                .lineSpacing(2)
         }
         .frame(maxWidth: .infinity)
     }
@@ -147,7 +147,7 @@ struct OnboardingView: View {
                     .font(.system(size: 28, weight: .semibold))
                     .foregroundColor(HeyUpColor.textSecondary)
                     .frame(maxWidth: .infinity)
-                wrapButtons(["Female", "Male", "Prefer not to say"], selection: $vm.profile.sex)
+                centeredSexButtons(selection: $vm.profile.sex)
             }
             VStack(alignment: .leading, spacing: 10) {
                 fieldLabel("Age range — so we suggest the right pace")
@@ -252,7 +252,7 @@ struct OnboardingView: View {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
             ScrollView {
-                sourceListButtons(["TikTok", "Instagram", "YouTube", "Facebook", "X (Twitter)", "Reddit", "Friend or family", "App Store", "Other"], selection: $vm.profile.source)
+                sourceListButtons(["TikTok", "Instagram", "YouTube", "Facebook", "X (Twitter)", "App Store", "Friend or family", "Other"], selection: $vm.profile.source)
             }
             Text("Optional — helps us know where to say hi.")
                 .font(.system(size: 12)).foregroundColor(HeyUpColor.textFaint)
@@ -267,13 +267,11 @@ struct OnboardingView: View {
         "YouTube": "BrandYouTube",
         "Facebook": "BrandFacebook",
         "X (Twitter)": "BrandX",
-        "Reddit": "BrandReddit",
         "App Store": "BrandAppStore"
     ]
 
-    /// Same full-width listed row as `listButtons`, with a small colored
-    /// initial badge per option (stand-in for real brand logos — swap in
-    /// official assets if/when available).
+    /// Full-width rows with recognizable vector brand marks. The fixed label
+    /// width keeps every badge on the same vertical axis while the pair stays centered.
     private func sourceListButtons(_ options: [String], selection: Binding<String>) -> some View {
         VStack(spacing: 8) {
             ForEach(options, id: \.self) { opt in
@@ -283,7 +281,9 @@ struct OnboardingView: View {
                     ZStack {
                         HStack(spacing: 12) {
                             sourceBadge(opt)
-                            Text(opt).font(.system(size: 16, weight: .medium))
+                            Text(opt)
+                                .font(.system(size: 16, weight: .medium))
+                                .frame(width: 135, alignment: .leading)
                         }
                         if selection.wrappedValue == opt {
                             HStack {
@@ -339,7 +339,6 @@ struct OnboardingView: View {
         switch option {
         case "YouTube": return Color(red: 1, green: 0, blue: 0)
         case "Facebook": return Color(red: 0.086, green: 0.466, blue: 0.937)
-        case "Reddit": return Color(red: 1, green: 0.271, blue: 0)
         case "App Store": return Color(red: 0.039, green: 0.518, blue: 1)
         case "Friend or family": return HeyUpColor.textMuted
         case "Other": return Color(red: 0.353, green: 0.388, blue: 0.314)
@@ -494,13 +493,26 @@ struct OnboardingView: View {
         Text(text).font(.system(size: 14.5)).foregroundColor(HeyUpColor.textSecondary)
     }
 
-    private func wrapButtons(_ options: [String], selection: Binding<String>) -> some View {
-        FlowLayout(spacing: 8) {
-            ForEach(options, id: \.self) { opt in
-                Button(opt) { selection.wrappedValue = opt }
-                    .buttonStyle(ChipButtonStyle(selected: selection.wrappedValue == opt))
+    private func centeredSexButtons(selection: Binding<String>) -> some View {
+        ViewThatFits {
+            HStack(spacing: 8) {
+                ForEach(["Female", "Male", "Prefer not to say"], id: \.self) { option in
+                    Button(option) { selection.wrappedValue = option }
+                        .buttonStyle(ChipButtonStyle(selected: selection.wrappedValue == option))
+                }
+            }
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    ForEach(["Female", "Male"], id: \.self) { option in
+                        Button(option) { selection.wrappedValue = option }
+                            .buttonStyle(ChipButtonStyle(selected: selection.wrappedValue == option))
+                    }
+                }
+                Button("Prefer not to say") { selection.wrappedValue = "Prefer not to say" }
+                    .buttonStyle(ChipButtonStyle(selected: selection.wrappedValue == "Prefer not to say"))
             }
         }
+        .frame(maxWidth: .infinity)
     }
 
     /// A vertical list of full-width rows — used where options should read
@@ -512,11 +524,15 @@ struct OnboardingView: View {
                 Button {
                     selection.wrappedValue = opt
                 } label: {
-                    HStack {
-                        Text(opt).font(.system(size: 15, weight: .medium))
-                        Spacer()
+                    ZStack {
+                        Text(opt)
+                            .font(.system(size: 15, weight: .medium))
+                            .frame(maxWidth: .infinity)
                         if selection.wrappedValue == opt {
-                            Text("✓").font(.system(size: 15, weight: .bold))
+                            HStack {
+                                Spacer()
+                                Text("✓").font(.system(size: 15, weight: .bold))
+                            }
                         }
                     }
                     .foregroundColor(selection.wrappedValue == opt ? .black : HeyUpColor.textPrimary)
