@@ -29,14 +29,20 @@ final class NotificationManager {
     /// session's notifications might still be pending (e.g. user paused/skipped).
     func scheduleSessionNotifications(totalSeconds: TimeInterval, session: SessionType) {
         cancelAll()
-        guard totalSeconds > 60 else { return } // too short for a useful 1-min warning
+        guard totalSeconds > 0 else { return }
 
-        let warningContent = UNMutableNotificationContent()
-        warningContent.title = "HeyUp"
-        warningContent.body = session.oneMinuteWarning()
-        warningContent.sound = .default
-        let warningTrigger = UNTimeIntervalNotificationTrigger(timeInterval: totalSeconds - 60, repeats: false)
-        let warningRequest = UNNotificationRequest(identifier: warningID, content: warningContent, trigger: warningTrigger)
+        let center = UNUserNotificationCenter.current()
+        if totalSeconds > 60 {
+            let warningContent = UNMutableNotificationContent()
+            warningContent.title = "HeyUp"
+            warningContent.body = session.oneMinuteWarning()
+            warningContent.sound = .default
+            let warningTrigger = UNTimeIntervalNotificationTrigger(timeInterval: totalSeconds - 60, repeats: false)
+            let warningRequest = UNNotificationRequest(identifier: warningID, content: warningContent, trigger: warningTrigger)
+            center.add(warningRequest) { error in
+                if let error { print("Unable to schedule HeyUp warning: \(error)") }
+            }
+        }
 
         let breakContent = UNMutableNotificationContent()
         breakContent.title = "HeyUp"
@@ -47,9 +53,9 @@ final class NotificationManager {
         let breakTrigger = UNTimeIntervalNotificationTrigger(timeInterval: totalSeconds, repeats: false)
         let breakRequest = UNNotificationRequest(identifier: breakID, content: breakContent, trigger: breakTrigger)
 
-        let center = UNUserNotificationCenter.current()
-        center.add(warningRequest)
-        center.add(breakRequest)
+        center.add(breakRequest) { error in
+            if let error { print("Unable to schedule HeyUp break notification: \(error)") }
+        }
     }
 
     func cancelAll() {
